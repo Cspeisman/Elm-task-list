@@ -12,31 +12,25 @@ main = StartApp.start { model = model, view = view, update = update }
 
 type alias Model = { tasks : List String , field : String}
 
-model : Model
 model = { tasks = [] , field = ""}
 
-entryTask : Address Action -> String -> Html
 entryTask address task =
     li [] [ text task ]
 
-taskList : Address Action -> List String -> Html
 taskList address tasks =
     let someTasks = List.map (entryTask address) tasks
     in  ul [] someTasks
 
-onEnter : Address a -> a -> Attribute
 onEnter address value =
     on "keydown"
         (Json.customDecoder keyCode is13)
         (\_ -> Signal.message address value)
 
-is13 : Int -> Result String ()
 is13 code =
     if code == 13
     then Ok ()
     else Err "not the right key code"
 
-view : Address Action -> Model -> Html
 view address model =
     div []
         [ input
@@ -53,7 +47,6 @@ view address model =
 
 type Action = AddTask | UpdateField String
 
-update : Action -> Model -> Model
 update action model =
     case action of
         AddTask ->
