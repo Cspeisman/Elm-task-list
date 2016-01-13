@@ -69,7 +69,7 @@ view address model =
             , onEnter address AddTask
             ]
             []
-        , button [ onClick address AddTask ] [ text "Add Another" ]
+        , button [ onClick address AddTask ] [ text "Add Task" ]
         , taskList address model.tasks
         ]
 
