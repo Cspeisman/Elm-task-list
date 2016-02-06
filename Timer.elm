@@ -1,5 +1,6 @@
 import Graphics.Element exposing (..)
 import Graphics.Collage exposing (..)
+import Html exposing (div, button)
 import Text
 import Signal
 import Time
@@ -8,7 +9,7 @@ import Debug
 
 
 model =
-  Signal.foldp update 0 timer
+  Signal.foldp update {seconds = 0, pause = False} everySecond
 
 
 main =
@@ -16,24 +17,26 @@ main =
 
 
 update time model =
-  model + 1
+  {model | seconds = model.seconds + 1}
 
 
-timer : Signal Time.Time
-timer =
-  Time.every Time.millisecond
+everySecond : Signal Time.Time
+everySecond =
+  Time.every Time.second
 
 
-clock milliseconds =
+
+clock model =
   let
-     time = toString ((milliseconds / 60) |> round)
+    minute = toString (model.seconds // 60)
+    second = toString (model.seconds % 60)
+    time = minute ++ ": " ++ second
   in
     collage 250 250
       [
         filled Color.lightGray (circle 50.0)
         , outlined (solid Color.grey) (circle 50.0)
         , text (Text.fromString time)
-        , rotateHand milliseconds
       ]
 
 
