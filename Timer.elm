@@ -1,48 +1,52 @@
-import Graphics.Element exposing (..)
-import Graphics.Collage exposing (..)
-import Html exposing (div, button)
-import Text
-import Signal
+import StartApp
 import Time
-import Color
 import Debug
+import Html
+import Html.Events
+import Effects exposing (Effects)
+
+type alias Model = {seconds : Int, isRunning : Bool}
 
 
-model =
-  Signal.foldp update {seconds = 0, pause = False} everySecond
+type Action
+  = Increment
+  | PauseResume
+  | Reset
+
+update action model =
+  case action of
+    Increment ->
+      if model.isRunning then ({model | seconds = model.seconds + 1}, Effects.none) else (model, Effects.none)
+
+    PauseResume ->
+      ({ model | isRunning = not model.isRunning }, Effects.none)
+
+    Reset ->
+      ({model | seconds = 0}, Effects.none)
+
+
+view address model =
+  let
+    minute = toString (model.seconds // 60)
+    second = model.seconds % 60
+    time = minute ++ ": " ++ (if second < 10 then ("0" ++ toString second) else (toString second))
+  in
+  Html.div
+    [ ]
+    [ Html.text time
+    , Html.button [ Html.Events.onClick address PauseResume ] [ Html.text (if model.isRunning then "pause" else "resume") ]
+    , Html.button [ Html.Events.onClick address Reset ] [ Html.text "reset"]
+    ]
+
+
+app =
+  StartApp.start {
+    init = (Model 0 True, Effects.none)
+    , view = view
+    , update = update
+    , inputs = [Signal.map (\_ -> Increment) (Time.every Time.second)] }
+
 
 
 main =
-  Signal.map clock model
-
-
-update time model =
-  {model | seconds = model.seconds + 1}
-
-
-everySecond : Signal Time.Time
-everySecond =
-  Time.every Time.second
-
-
-
-clock model =
-  let
-    minute = toString (model.seconds // 60)
-    second = toString (model.seconds % 60)
-    time = minute ++ ": " ++ second
-  in
-    collage 250 250
-      [
-        filled Color.lightGray (circle 50.0)
-        , outlined (solid Color.grey) (circle 50.0)
-        , text (Text.fromString time)
-      ]
-
-
-hand =
-  traced (solid Color.darkPurple) (path [(0.0, 25.0), (00.0, 50.0)])
-
-
-rotateHand time =
-  rotate (degrees -(toFloat(round((time/ 60) * 360)))) hand
+  app.html
