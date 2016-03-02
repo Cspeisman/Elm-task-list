@@ -1,3 +1,5 @@
+module Timer (..) where
+
 import StartApp
 import Time
 import Debug
@@ -12,6 +14,11 @@ type Action
   = Increment
   | PauseResume
   | Reset
+
+
+init =
+  {seconds = 0, isRunning = True}
+
 
 update action model =
   case action of
@@ -41,7 +48,7 @@ view address model =
 
 app =
   StartApp.start {
-    init = (Model 0 True, Effects.none)
+    init = (init, Effects.none)
     , view = view
     , update = update
     , inputs = [Signal.map (\_ -> Increment) (Time.every Time.second)] }
