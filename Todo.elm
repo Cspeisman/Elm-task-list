@@ -91,7 +91,7 @@ type Action
 
 
 
-
+incrementWatch : Task -> Task
 incrementWatch task =
   let
     {timer} = task
@@ -99,7 +99,7 @@ incrementWatch task =
     { task | timer = {seconds = timer.seconds + 1, isRunning = True}}
 
 
--- update : Action -> Model -> (Model, Effects a)
+update : Action -> Model -> (Model, Effects a)
 update action model =
   case action of
     AddTask ->
@@ -110,12 +110,12 @@ update action model =
 
     Tick ->
       let
-        bar = List.map incrementWatch model.tasks
+        incrementedTasks = List.map incrementWatch model.tasks
       in
-        ({model | tasks = bar}, Effects.none)
+        ({model | tasks = incrementedTasks}, Effects.none)
 
 
--- view : Address Action -> Model -> Html
+view : Address Action -> Model -> Html
 view address model =
   div
     [ ]
