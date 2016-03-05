@@ -17,7 +17,7 @@ type Action
 
 
 init =
-  {seconds = 0, isRunning = True}
+  {seconds = 0, isRunning = False}
 
 
 update action model =
