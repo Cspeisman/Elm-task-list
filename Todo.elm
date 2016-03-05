@@ -37,6 +37,7 @@ type alias Task =
     description : String
   , timer : Timer.Model
   , id : Int
+  , stage : String
   }
 
 
@@ -69,7 +70,17 @@ entryTask address task =
     div
       [ ]
       [
-        li [] [ text task.description ]
+        li
+          [ ]
+          [ text task.description
+          , select
+              [ Html.Events.onWithOptions "change" { preventDefault = True, stopPropagation = True } Html.Events.targetValue (\v -> Signal.message address (Foo v))]
+              [ option [value "todo"] [text "todo"]
+              , option [value "inProgres"] [text "in progress"]
+              , option [value "completed"] [text "completed"]
+              ]
+          ]
+
       , timerView address task
       ]
 
@@ -104,7 +115,7 @@ type Action id
     | Tick
     | Reset id
     | PauseResume id
-
+    | Foo String
 
 
 -- incrementWatch : Task -> Task
@@ -126,7 +137,9 @@ update action model =
         | tasks = model.tasks ++ [
             {description = model.field
             , timer = Timer.init
-            , id = model.nextId}
+            , id = model.nextId
+            , stage = "todo"
+            }
           ]
         , nextId = model.nextId + 1
         , field = "" }
@@ -164,7 +177,9 @@ update action model =
       in
       ({model | tasks = List.map resetTaskTimer model.tasks}, Effects.none)
 
-
+    Foo str ->
+      Debug.log str
+      (model, Effects.none)
 
 -- view : Address Action -> Model -> Html
 view address model =
