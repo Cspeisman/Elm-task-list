@@ -29,6 +29,7 @@ type alias Model =
     { tasks : List Task
     , field : String
     , nextId : Int
+    , filter : String
     }
 
 
@@ -46,7 +47,19 @@ model =
     { tasks = []
     , field = ""
     , nextId = 0
+    , filter = "all"
     }
+
+
+show =
+  style [("display", "block")]
+
+hide =
+  style [("display", "none")]
+
+
+applyDisplayFiler filter task =
+  if filter == task.stage || filter == "all" then show else hide
 
 
 -- timerView : Address Action -> Timer.Model -> Html
@@ -70,30 +83,29 @@ changeTaskStage address task =
 
 
 -- entryTask : Address Action -> Task -> Html
-entryTask address task =
+entryTask address filter task  =
     div
-      [ ]
-      [
-        li
-          [ ]
+      [ applyDisplayFiler filter task ]
+      [ li
+          [ class task.stage]
           [ text task.description
           , select
               [ changeTaskStage address task ]
               [ option [value "todo"] [text "todo"]
-              , option [value "inProgres"] [text "in progress"]
+              , option [value "inProgress"] [text "in progress"]
               , option [value "completed"] [text "completed"]
               ]
           ]
 
       , timerView address task
-      ]
+    ]
 
 
 
 -- taskList : Address Action -> List Task -> Html
-taskList address tasks =
+taskList address model =
   let
-    someTasks = List.map (entryTask address) tasks
+    someTasks = List.map (entryTask address model.filter) model.tasks
   in
     ul [] someTasks
 
@@ -117,7 +129,7 @@ type Action id
     | Reset id
     | PauseResume id
     | ChangeStage String id
-
+    | ApplyTaskFilter String
 
 -- incrementWatch : Task -> Task
 incrementWatch task =
@@ -169,11 +181,24 @@ update action model =
       let switchStage taskModel = if taskModel.id == id then {taskModel | stage = str} else taskModel
       in ({model | tasks = List.map switchStage model.tasks} , Effects.none)
 
+    ApplyTaskFilter str ->
+      Debug.log str
+      ({model | filter = str}, Effects.none)
+
+
+applyTaskFilter address =
+  div
+    [ ]
+    [ button [ Html.Events.onClick address (ApplyTaskFilter "all")] [ text "ALL" ]
+    , button [ Html.Events.onClick address (ApplyTaskFilter "todo")] [ text "TO-DO" ]
+    , button [ Html.Events.onClick address (ApplyTaskFilter "inProgress")] [ text "IN PROGRESS" ]
+    , button [ Html.Events.onClick address (ApplyTaskFilter "completed")] [ text "COMPLETED" ]
+    ]
 
 -- view : Address Action -> Model -> Html
 view address model =
   div
-    [ ]
+    [ style [("padding", "24px")] ]
       [ input
         [ id "new-todo"
         , placeholder "What needs to be done?"
@@ -184,5 +209,7 @@ view address model =
         , onEnter address AddTask ]
         [ ]
       , button [ Html.Events.onClick address AddTask ] [ text "Add Task" ]
-      , taskList address model.tasks
+      , applyTaskFilter address
+      , h3 [ ] [text model.filter]
+      , taskList address model
       ]
