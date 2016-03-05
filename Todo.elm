@@ -65,6 +65,10 @@ timerView address task =
       ]
 
 
+changeTaskStage address task =
+  Html.Events.onWithOptions "change" {preventDefault = True, stopPropagation = True} Html.Events.targetValue (\v -> Signal.message address (ChangeStage v task.id))
+
+
 -- entryTask : Address Action -> Task -> Html
 entryTask address task =
     div
@@ -74,7 +78,7 @@ entryTask address task =
           [ ]
           [ text task.description
           , select
-              [ Html.Events.onWithOptions "change" { preventDefault = True, stopPropagation = True } Html.Events.targetValue (\v -> Signal.message address (Foo v))]
+              [ changeTaskStage address task ]
               [ option [value "todo"] [text "todo"]
               , option [value "inProgres"] [text "in progress"]
               , option [value "completed"] [text "completed"]
@@ -103,10 +107,7 @@ onEnter address value =
 
 -- is13 : Int -> Result String ()
 is13 code =
-    if code == 13 then
-        Ok ()
-    else
-        Err "not the right key code"
+    if code == 13 then Ok () else Err "not the right key code"
 
 
 type Action id
@@ -115,18 +116,13 @@ type Action id
     | Tick
     | Reset id
     | PauseResume id
-    | Foo String
+    | ChangeStage String id
 
 
 -- incrementWatch : Task -> Task
 incrementWatch task =
-  let
-    {timer} = task
-  in
-    if timer.isRunning then
-      { task | timer = {seconds = timer.seconds + 1, isRunning = True}}
-    else
-      task
+  let {timer} = task
+  in if timer.isRunning then { task | timer = {seconds = timer.seconds + 1, isRunning = True}} else task
 
 
 -- update : Action -> Model -> (Model, Effects a)
@@ -150,36 +146,29 @@ update action model =
       ({ model | field = str }, Effects.none)
 
     Tick ->
-      let
-        incrementedTasks = List.map incrementWatch model.tasks
-      in
-        ({model | tasks = incrementedTasks}, Effects.none)
+      let incrementedTasks = List.map incrementWatch model.tasks
+      in ({model | tasks = incrementedTasks}, Effects.none)
 
     PauseResume id ->
-      let
-        updateTaskTimer taskModel =
-          if taskModel.id == id then
-            let { timer } = taskModel
-            in { taskModel | timer = { timer | isRunning = not timer.isRunning } }
-          else
-            taskModel
-      in
-        ({model | tasks = List.map updateTaskTimer model.tasks}, Effects.none)
+      let updateTaskTimer taskModel =
+            if taskModel.id == id then
+              let { timer } = taskModel
+              in { taskModel | timer = { timer | isRunning = not timer.isRunning } }
+            else taskModel
+      in ({model | tasks = List.map updateTaskTimer model.tasks}, Effects.none)
 
     Reset id ->
-      let
-        resetTaskTimer taskModel =
-          if taskModel.id == id then
-            let { timer } = taskModel
-            in { taskModel | timer = { timer | seconds = 0 } }
-          else
-            taskModel
-      in
-      ({model | tasks = List.map resetTaskTimer model.tasks}, Effects.none)
+      let resetTaskTimer taskModel =
+            if taskModel.id == id then
+              let { timer } = taskModel
+              in { taskModel | timer = { timer | seconds = 0 } }
+            else taskModel
+      in ({model | tasks = List.map resetTaskTimer model.tasks}, Effects.none)
 
-    Foo str ->
-      Debug.log str
-      (model, Effects.none)
+    ChangeStage str id ->
+      let switchStage taskModel = if taskModel.id == id then {taskModel | stage = str} else taskModel
+      in ({model | tasks = List.map switchStage model.tasks} , Effects.none)
+
 
 -- view : Address Action -> Model -> Html
 view address model =
