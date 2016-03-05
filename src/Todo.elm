@@ -62,9 +62,12 @@ timerView address task =
   in
     span
       [ ]
-      [ text time
-      , button [ Html.Events.onClick address (PauseResume task.id) ] [ text (if timer.isRunning then "pause" else "resume") ]
-      , button [ Html.Events.onClick address (Reset task.id)] [ text "reset"]
+      [ span
+          [ Html.Events.onClick address (PauseResume task.id)
+          , (if timer.isRunning then class "icon-pause" else class "icon-play")
+          ] [ ]
+      , text time
+      -- , button [ Html.Events.onClick address (Reset task.id)] [ text "reset"]
       ]
 
 
