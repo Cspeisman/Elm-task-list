@@ -9,6 +9,7 @@ import Signal exposing (Signal, Address)
 import Debug
 import StartApp
 import Time
+import AppStyles
 import Effects exposing (Effects)
 
 
@@ -51,17 +52,6 @@ model =
     }
 
 
-show =
-  style [("display", "block")]
-
-hide =
-  style [("display", "none")]
-
-
-applyDisplayFiler filter task =
-  if filter == task.stage || filter == "all" then show else hide
-
-
 -- timerView : Address Action -> Timer.Model -> Html
 timerView address task =
   let
@@ -85,7 +75,7 @@ changeTaskStage address task =
 -- entryTask : Address Action -> Task -> Html
 entryTask address filter task  =
     div
-      [ applyDisplayFiler filter task ]
+      [ AppStyles.applyDisplayFiler filter task ]
       [ li
           [ class task.stage]
           [ text task.description
@@ -122,14 +112,15 @@ is13 code =
     if code == 13 then Ok () else Err "not the right key code"
 
 
-type Action id
+type Action
     = AddTask
     | UpdateField String
     | Tick
-    | Reset id
-    | PauseResume id
-    | ChangeStage String id
+    | Reset Int
+    | PauseResume Int
+    | ChangeStage String Int
     | ApplyTaskFilter String
+    
 
 -- incrementWatch : Task -> Task
 incrementWatch task =
