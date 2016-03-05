@@ -39,6 +39,7 @@ type alias Task =
     , timer : Timer.Model
     , id : Int
     , stage : String
+    , showControls : Bool
     }
 
 
@@ -92,23 +93,32 @@ changeTaskStage address task =
 
 selectList address task =
     select
-        [ changeTaskStage address task ]
+        [ changeTaskStage address task, AppStyles.selectStyles ]
         [ option [ value "todo" ] [ text "todo" ]
         , option [ value "inProgress" ] [ text "in progress" ]
         , option [ value "completed" ] [ text "completed" ]
         ]
 
 
+taskController address task =
+  label
+    [ class "controls", AppStyles.taskControls task.showControls ]
+    [ selectList address task]
 
--- entryTask : Address Action -> Task -> Html
-entryTask address filter task =
+
+-- taskEntry : Address Action -> Task -> Html
+taskEntry address filter task =
     div
-        [ AppStyles.applyDisplayFiler filter task ]
+        [ AppStyles.applyDisplayFiler filter task
+        , Html.Events.onMouseOver address (ExposeControls task.id)
+        ]
         [ div
             [ class task.stage, AppStyles.taskRow ]
-            [ text task.description
+            [ taskController address task
+            , text task.description
             , timerView address task
             ]
+
         ]
 
 
@@ -116,7 +126,7 @@ entryTask address filter task =
 -- taskList : Address Action -> List Task -> Html
 taskList address model =
     let
-        someTasks = List.map (entryTask address model.filter) model.tasks
+        someTasks = List.map (taskEntry address model.filter) model.tasks
     in
         div [] someTasks
 
@@ -147,6 +157,7 @@ type Action
     | PauseResume Int
     | ChangeStage String Int
     | ApplyTaskFilter String
+    | ExposeControls Int
 
 
 
@@ -173,6 +184,7 @@ update action model =
                              , timer = Timer.init
                              , id = model.nextId
                              , stage = "todo"
+                             , showControls = False
                              }
                            ]
                 , nextId = model.nextId + 1
@@ -228,6 +240,15 @@ update action model =
 
         ApplyTaskFilter str ->
             ( { model | filter = str }, Effects.none )
+
+        ExposeControls id ->
+            let toggleControls taskModel =
+              if taskModel.id == id then
+                { taskModel | showControls = True }
+              else
+                { taskModel | showControls = False }
+            in
+              ( { model | tasks = List.map toggleControls model.tasks }, Effects.none )
 
 
 applyTaskFilter address =

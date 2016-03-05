@@ -31,3 +31,7 @@
 .icon-pause:before {
     content: "\e901";
 }
+
+.controls:before {
+   content: "⋮";
+}
