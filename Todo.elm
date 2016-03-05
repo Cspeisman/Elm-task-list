@@ -195,6 +195,7 @@ applyTaskFilter address =
     , button [ Html.Events.onClick address (ApplyTaskFilter "completed")] [ text "COMPLETED" ]
     ]
 
+
 -- view : Address Action -> Model -> Html
 view address model =
   div
