@@ -60,7 +60,7 @@ timerView address task =
     second = timer.seconds % 60
     time = minute ++ ": " ++ (if second < 10 then ("0" ++ toString second) else (toString second))
   in
-    div
+    span
       [ ]
       [ text time
       , button [ Html.Events.onClick address (PauseResume task.id) ] [ text (if timer.isRunning then "pause" else "resume") ]
@@ -72,22 +72,25 @@ changeTaskStage address task =
   Html.Events.onWithOptions "change" {preventDefault = True, stopPropagation = True} Html.Events.targetValue (\v -> Signal.message address (ChangeStage v task.id))
 
 
+
+selectList address task =
+  select
+      [ changeTaskStage address task ]
+      [ option [value "todo"] [text "todo"]
+      , option [value "inProgress"] [text "in progress"]
+      , option [value "completed"] [text "completed"]
+      ]
+
+
 -- entryTask : Address Action -> Task -> Html
 entryTask address filter task  =
     div
       [ AppStyles.applyDisplayFiler filter task ]
-      [ li
-          [ class task.stage]
+      [ div
+          [ class task.stage, AppStyles.taskRow]
           [ text task.description
-          , select
-              [ changeTaskStage address task ]
-              [ option [value "todo"] [text "todo"]
-              , option [value "inProgress"] [text "in progress"]
-              , option [value "completed"] [text "completed"]
-              ]
+          , timerView address task
           ]
-
-      , timerView address task
     ]
 
 
@@ -97,7 +100,7 @@ taskList address model =
   let
     someTasks = List.map (entryTask address model.filter) model.tasks
   in
-    ul [] someTasks
+    div [] someTasks
 
 
 -- onEnter : Address a -> a -> Attribute
@@ -120,7 +123,7 @@ type Action
     | PauseResume Int
     | ChangeStage String Int
     | ApplyTaskFilter String
-    
+
 
 -- incrementWatch : Task -> Task
 incrementWatch task =
@@ -173,7 +176,6 @@ update action model =
       in ({model | tasks = List.map switchStage model.tasks} , Effects.none)
 
     ApplyTaskFilter str ->
-      Debug.log str
       ({model | filter = str}, Effects.none)
 
 
