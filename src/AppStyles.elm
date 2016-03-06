@@ -47,5 +47,12 @@ plusButton =
     , ("border-radius", "50%")
     ]
 
+label =
+  style [ ("color", "#11777d"), ("font-size", "16px")]
+
+banner =
+  style [ ("background", "linear-gradient(135deg, #72bffa, #48d6a8)") ]
+
+
 applyDisplayFiler filter task =
   if filter == task.stage || filter == "all" then show else hide

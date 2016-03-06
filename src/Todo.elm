@@ -93,16 +93,16 @@ selectList address task =
 
 
 taskController address task =
-  div
-    [ Html.Events.onClick address (ToggleStageSelection task.id)
-    , class "controls"
-    , AppStyles.taskControls task.showControls
-    ]
-    [ text ""
-    , div
-      [ ]
-      [ (if task.showStageOptions then selectList address task else div [] []) ]
-    ]
+    div
+        [ Html.Events.onClick address (ToggleStageSelection task.id)
+        , class "controls"
+        , AppStyles.taskControls task.showControls
+        ]
+        [ text ""
+        , div
+          [ ]
+          [ (if task.showStageOptions then selectList address task else div [] []) ]
+        ]
 
 
 -- taskEntry : Address Action -> Task -> Html
@@ -110,7 +110,7 @@ taskEntry address filter task =
     div
         [ AppStyles.applyDisplayFiler filter task
         , Html.Events.onMouseOver address (ExposeControls task.id)
-        , Html.Events.onMouseOut address (ExposeControls task.id)
+        , Html.Events.onMouseOut address (HideControls task.id)
         ]
         [ div
             [ class task.stage, AppStyles.taskRow ]
@@ -158,6 +158,7 @@ type Action
     | ChangeStage String Int
     | ApplyTaskFilter String
     | ExposeControls Int
+    | HideControls Int
     | ToggleStageSelection Int
     | ShowInputField
 
@@ -247,13 +248,21 @@ update action model =
 
         ExposeControls id ->
             let toggleControls taskModel =
-              if taskModel.id == id && taskModel.showControls == False then
+              if taskModel.id == id then
                 { taskModel | showControls = True }
-
               else
-                { taskModel | showControls = False }
+                taskModel
             in
               ( { model | tasks = List.map toggleControls model.tasks }, Effects.none )
+
+        HideControls id ->
+            let toggleControls taskModel =
+                if taskModel.id == id then
+                    { taskModel | showControls = False }
+                else
+                    taskModel
+            in
+                ( { model | tasks = List.map toggleControls model.tasks }, Effects.none )
 
         ToggleStageSelection id ->
             let toggleStageSelection taskModel =
@@ -268,14 +277,19 @@ update action model =
             ( {model | showTaskInput = True}, Effects.none )
 
 
+banner address =
+  div
+    [ AppStyles.banner ]
+    [ applyTaskFilter address ]
+
 applyTaskFilter address =
     div
-        [ style [("display", "flex"), ("justify-content", "space-between") ] ]
-        [ button [ Html.Events.onClick address (ApplyTaskFilter "all") ] [ text "ALL" ]
-        , button [ Html.Events.onClick address (ApplyTaskFilter "todo") ] [ text "TO-DO" ]
-        , button [ Html.Events.onClick address (ApplyTaskFilter "inProgress") ] [ text "IN PROGRESS" ]
-        , button [ Html.Events.onClick address (ApplyTaskFilter "completed") ] [ text "COMPLETED" ]
-        , span [ ] [ button [ AppStyles.plusButton, Html.Events.onClick address ShowInputField ] [text "+"] ]
+        [ style [ ("position", "relative"), ("background", "rgba(239, 239, 239, 0.5)")] ]
+        [ button [ AppStyles.label, Html.Events.onClick address (ApplyTaskFilter "all") ] [ text "ALL" ]
+        , button [ AppStyles.label, Html.Events.onClick address (ApplyTaskFilter "todo") ] [ text "TO-DO" ]
+        , button [ AppStyles.label, Html.Events.onClick address (ApplyTaskFilter "inProgress") ] [ text "IN PROGRESS" ]
+        , button [ AppStyles.label, Html.Events.onClick address (ApplyTaskFilter "completed") ] [ text "COMPLETED" ]
+        , span [style [("position", "absolute"), ("right", "0"), ("bottom", "-13px")]] [ button [ AppStyles.plusButton, Html.Events.onClick address ShowInputField ] [text "+"] ]
         ]
 
 
@@ -298,7 +312,7 @@ taskInputField address model =
 view address model =
     div
         [ style [ ( "padding", "24px" ) ] ]
-        [ applyTaskFilter address
+        [ banner address
         , if model.showTaskInput then taskInputField address model else text ""
         , taskList address model
         ]
