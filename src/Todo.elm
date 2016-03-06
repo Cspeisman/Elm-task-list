@@ -33,6 +33,7 @@ type alias Model =
     , nextId : Int
     , filter : String
     , showTaskInput : Bool
+    , featureTask : Task
     }
 
 
@@ -53,6 +54,7 @@ model =
     , nextId = 0
     , filter = "all"
     , showTaskInput = True
+    , featureTask = {description = "Enter a new task", timer = Timer.init, id = 0, stage = "todo", showControls = False, showStageOptions = False}
     }
 
 
@@ -75,9 +77,6 @@ timerView address task =
             , text time
             ]
 
-
--- changeTaskStage address task =
---     Html.Events.onWithOptions "change" { preventDefault = True, stopPropagation = True } Html.Events.targetValue (\v -> Signal.message address (ChangeStage v task.id))
 
 changeTaskStage address task =
     Html.Events.on "click"  Html.Events.targetValue (\v -> Signal.message address (ChangeStage v task.id))
@@ -111,6 +110,7 @@ taskEntry address filter task =
         [ AppStyles.applyDisplayFiler filter task
         , Html.Events.onMouseOver address (ExposeControls task.id)
         , Html.Events.onMouseOut address (HideControls task.id)
+        , Html.Events.onClick address (HandleFeatureTask task)
         ]
         [ div
             [ class task.stage, AppStyles.taskRow ]
@@ -161,7 +161,7 @@ type Action
     | HideControls Int
     | ToggleStageSelection Int
     | ShowInputField
-
+    | HandleFeatureTask Task
 
 
 -- incrementWatch : Task -> Task
@@ -276,15 +276,21 @@ update action model =
         ShowInputField ->
             ( {model | showTaskInput = True}, Effects.none )
 
+        HandleFeatureTask task ->
+          ( {model | featureTask = task}, Effects.none)
 
-banner address =
-  div
-    [ AppStyles.banner ]
-    [ div [ style [("text-align", "center"), ("font-size", "18px"), ("padding", "24px 0")] ] [ text "Build table" ]
-    , div [ style [("text-align", "center"), ("font-size", "56px"), ("font-weight", "300")] ] [ text "00:54:12" ]
-    , div [ class "icon-pause", style [("color", "white"), ("text-align", "center"), ("font-size", "36px"), ("padding", "24px 0")]] [ ]
-    , applyTaskFilter address
-    ]
+banner address model =
+  let
+      { featureTask } = model
+      { timer } = featureTask
+  in
+    div
+      [ AppStyles.banner ]
+      [ div [ style [("text-align", "center"), ("font-size", "18px"), ("padding", "24px 0")] ] [ text featureTask.description ]
+      , div [ style [("text-align", "center"), ("font-size", "56px"), ("font-weight", "300")] ] [ text (toString timer.seconds) ]
+      , div [ class "icon-pause", style [("color", "white"), ("text-align", "center"), ("font-size", "36px"), ("padding", "24px 0")]] [ ]
+      , applyTaskFilter address
+      ]
 
 applyTaskFilter address =
     div
@@ -315,8 +321,8 @@ taskInputField address model =
 -- view : Address Action -> Model -> Html
 view address model =
     div
-        [ style [ ( "padding", "24px" ) ] ]
-        [ banner address
+        [ ]
+        [ banner address model
         , if model.showTaskInput then taskInputField address model else text ""
         , taskList address model
         ]

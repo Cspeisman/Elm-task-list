@@ -1,0 +1,23 @@
+{
+  "name": "elm-task-list",
+  "version": "1.0.0",
+  "description": "Simply add tasks to a list, and track the time you've spent on each task.",
+  "main": "main.js",
+  "dependencies": {
+    "electron-prebuilt": "^0.36.10"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "./node_modules/.bin/electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cspeisman/Elm-task-list.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Cspeisman/Elm-task-list/issues"
+  },
+  "homepage": "https://github.com/Cspeisman/Elm-task-list#readme"
+}
