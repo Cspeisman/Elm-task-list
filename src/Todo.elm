@@ -293,7 +293,7 @@ applyTaskFilter address =
         , button [ AppStyles.label, Html.Events.onClick address (ApplyTaskFilter "todo") ] [ text "TO-DO" ]
         , button [ AppStyles.label, Html.Events.onClick address (ApplyTaskFilter "inProgress") ] [ text "IN PROGRESS" ]
         , button [ AppStyles.label, Html.Events.onClick address (ApplyTaskFilter "completed") ] [ text "COMPLETED" ]
-        , span [style [("position", "absolute"), ("right", "0"), ("bottom", "-13px")]] [ button [ AppStyles.plusButton, Html.Events.onClick address ShowInputField ] [text "+"] ]
+        , span [style [("position", "absolute"), ("right", "0"), ("bottom", "-23px")]] [ button [ AppStyles.plusButton, Html.Events.onClick address ShowInputField ] [text "+"] ]
         ]
 
 

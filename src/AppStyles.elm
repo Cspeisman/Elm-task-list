@@ -42,10 +42,10 @@ selectStyles =
 
 plusButton =
   style
-    [ ("background-color", "rgba(96,96,96, 0.8)")
+    [ ("background-color", "#006e73")
     , ("color", "white")
-    , ("padding", "11px 16px")
-    , ("padding-top", "8px")
+    , ("padding", "21px 26px")
+    , ("padding-top", "18px")
     , ("font-size", "24px")
     , ("border-radius", "50%")
     ]
