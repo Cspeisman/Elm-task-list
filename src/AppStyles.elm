@@ -18,6 +18,7 @@ taskRow =
     , ("justify-content", "space-between")
     , ("font-size", "24px")
     , ("position", "relative")
+    , ("color", "#3a3a3a")
     ]
 
 taskControls show =
@@ -25,6 +26,7 @@ taskControls show =
     [ ("position", "absolute")
     , ("z-index", "1")
     , ("background", "white")
+    , ("color", "#41aac1")
     , ("padding", "0px 8px")
     , if show then ("display", "block") else ("display", "none")
     ]
@@ -35,6 +37,7 @@ selectStyles =
     , ("padding", "12px")
     , ("background", "white")
     , ("font-size", "16px")
+    , ("color", "#3a3a3a")
     ]
 
 plusButton =
@@ -51,7 +54,10 @@ label =
   style [ ("color", "#11777d"), ("font-size", "16px")]
 
 banner =
-  style [ ("background", "linear-gradient(135deg, #72bffa, #48d6a8)") ]
+  style
+    [ ("background", "linear-gradient(135deg, #72bffa, #48d6a8)")
+    , ("color", "white")
+    ]
 
 
 applyDisplayFiler filter task =
