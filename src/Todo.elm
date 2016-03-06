@@ -10,6 +10,7 @@ import Debug
 import StartApp
 import Time
 import AppStyles
+import DynamicStyle
 import Effects exposing (Effects)
 
 
@@ -40,6 +41,7 @@ type alias Task =
     , id : Int
     , stage : String
     , showControls : Bool
+    , showStageOptions : Bool
     }
 
 
@@ -87,23 +89,33 @@ timerView address task =
             ]
 
 
+-- changeTaskStage address task =
+--     Html.Events.onWithOptions "change" { preventDefault = True, stopPropagation = True } Html.Events.targetValue (\v -> Signal.message address (ChangeStage v task.id))
+
 changeTaskStage address task =
-    Html.Events.onWithOptions "change" { preventDefault = True, stopPropagation = True } Html.Events.targetValue (\v -> Signal.message address (ChangeStage v task.id))
+    Html.Events.on "click"  Html.Events.targetValue (\v -> Signal.message address (ChangeStage v task.id))
 
 
 selectList address task =
-    select
+    div
         [ changeTaskStage address task, AppStyles.selectStyles ]
-        [ option [ value "todo" ] [ text "todo" ]
-        , option [ value "inProgress" ] [ text "in progress" ]
-        , option [ value "completed" ] [ text "completed" ]
+        [ div [ value "todo" ] [ text "todo" ]
+        , div [ value "inProgress" ] [ text "in progress" ]
+        , div [ value "completed" ] [ text "completed" ]
         ]
 
 
 taskController address task =
-  label
-    [ class "controls", AppStyles.taskControls task.showControls ]
-    [ selectList address task]
+  div
+    [ Html.Events.onClick address (ToggleStageSelection task.id)
+    , class "controls"
+    , AppStyles.taskControls task.showControls
+    ]
+    [ text ""
+    , div
+      [ ]
+      [ (if task.showStageOptions then selectList address task else div [] []) ]
+    ]
 
 
 -- taskEntry : Address Action -> Task -> Html
@@ -158,6 +170,7 @@ type Action
     | ChangeStage String Int
     | ApplyTaskFilter String
     | ExposeControls Int
+    | ToggleStageSelection Int
 
 
 
@@ -185,6 +198,7 @@ update action model =
                              , id = model.nextId
                              , stage = "todo"
                              , showControls = False
+                             , showStageOptions = False
                              }
                            ]
                 , nextId = model.nextId + 1
@@ -249,6 +263,15 @@ update action model =
                 { taskModel | showControls = False }
             in
               ( { model | tasks = List.map toggleControls model.tasks }, Effects.none )
+
+        ToggleStageSelection id ->
+            let toggleStageSelection taskModel =
+              if taskModel.id == id then
+                { taskModel | showStageOptions = not taskModel.showStageOptions }
+              else
+                taskModel
+              in
+                ( { model | tasks = List.map toggleStageSelection model.tasks }, Effects.none )
 
 
 applyTaskFilter address =

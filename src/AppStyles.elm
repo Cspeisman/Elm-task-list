@@ -31,8 +31,10 @@ taskControls show =
 
 selectStyles =
   style
-    [ ("border", "none")
+    [ ("box-shadow", "0px 2px 5px #BABABA")
+    , ("padding", "12px")
     , ("background", "white")
+    , ("font-size", "16px")
     ]
 
 
