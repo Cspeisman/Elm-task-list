@@ -32,6 +32,7 @@ type alias Model =
     , field : String
     , nextId : Int
     , filter : String
+    , showTaskInput : Bool
     }
 
 
@@ -51,6 +52,7 @@ model =
     , field = ""
     , nextId = 0
     , filter = "all"
+    , showTaskInput = True
     }
 
 
@@ -59,33 +61,18 @@ model =
 timerView address task =
     let
         { timer } = task
-
         minute = toString (timer.seconds // 60)
-
         second = timer.seconds % 60
-
-        time =
-            minute
-                ++ ": "
-                ++ (if second < 10 then
-                        ("0" ++ toString second)
-                    else
-                        (toString second)
-                   )
+        time = minute ++ ": " ++ (if second < 10 then ("0" ++ toString second) else (toString second))
     in
-        span
-            []
+       span
+            [ ]
             [ span
                 [ Html.Events.onClick address (PauseResume task.id)
-                , (if timer.isRunning then
-                    class "icon-pause"
-                   else
-                    class "icon-play"
-                  )
+                , if timer.isRunning then class "icon-pause" else class "icon-play"
                 ]
-                []
+                [ ]
             , text time
-              -- , button [ Html.Events.onClick address (Reset task.id)] [ text "reset"]
             ]
 
 
@@ -123,6 +110,7 @@ taskEntry address filter task =
     div
         [ AppStyles.applyDisplayFiler filter task
         , Html.Events.onMouseOver address (ExposeControls task.id)
+        , Html.Events.onMouseOut address (ExposeControls task.id)
         ]
         [ div
             [ class task.stage, AppStyles.taskRow ]
@@ -171,6 +159,7 @@ type Action
     | ApplyTaskFilter String
     | ExposeControls Int
     | ToggleStageSelection Int
+    | ShowInputField
 
 
 
@@ -203,6 +192,7 @@ update action model =
                            ]
                 , nextId = model.nextId + 1
                 , field = ""
+                , showTaskInput = False
               }
             , Effects.none
             )
@@ -257,8 +247,9 @@ update action model =
 
         ExposeControls id ->
             let toggleControls taskModel =
-              if taskModel.id == id then
+              if taskModel.id == id && taskModel.showControls == False then
                 { taskModel | showControls = True }
+
               else
                 { taskModel | showControls = False }
             in
@@ -273,34 +264,41 @@ update action model =
               in
                 ( { model | tasks = List.map toggleStageSelection model.tasks }, Effects.none )
 
+        ShowInputField ->
+            ( {model | showTaskInput = True}, Effects.none )
+
 
 applyTaskFilter address =
     div
-        []
+        [ style [("display", "flex"), ("justify-content", "space-between") ] ]
         [ button [ Html.Events.onClick address (ApplyTaskFilter "all") ] [ text "ALL" ]
         , button [ Html.Events.onClick address (ApplyTaskFilter "todo") ] [ text "TO-DO" ]
         , button [ Html.Events.onClick address (ApplyTaskFilter "inProgress") ] [ text "IN PROGRESS" ]
         , button [ Html.Events.onClick address (ApplyTaskFilter "completed") ] [ text "COMPLETED" ]
+        , span [ ] [ button [ AppStyles.plusButton, Html.Events.onClick address ShowInputField ] [text "+"] ]
         ]
 
+
+
+taskInputField address model =
+  input
+      [ id "new-todo"
+      , placeholder "What needs to be done?"
+      , autofocus True
+      , value model.field
+      , name "newTodo"
+      , Html.Events.on "input" Html.Events.targetValue (\v -> Signal.message address (UpdateField v))
+      , onEnter address AddTask
+      , AppStyles.taskRow
+      ]
+      [ ]
 
 
 -- view : Address Action -> Model -> Html
 view address model =
     div
         [ style [ ( "padding", "24px" ) ] ]
-        [ input
-            [ id "new-todo"
-            , placeholder "What needs to be done?"
-            , autofocus True
-            , value model.field
-            , name "newTodo"
-            , Html.Events.on "input" Html.Events.targetValue (\v -> Signal.message address (UpdateField v))
-            , onEnter address AddTask
-            ]
-            []
-        , button [ Html.Events.onClick address AddTask ] [ text "Add Task" ]
-        , applyTaskFilter address
-        , h3 [] [ text model.filter ]
+        [ applyTaskFilter address
+        , if model.showTaskInput then taskInputField address model else text ""
         , taskList address model
         ]

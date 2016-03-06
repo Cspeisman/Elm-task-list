@@ -25,8 +25,14 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
-select {
+select, button, input {
     -webkit-appearance: none;
+    border: none;
+    background: transparent;
+}
+
+input:focus {
+  outline: none;
 }
 
 .icon-play:before {

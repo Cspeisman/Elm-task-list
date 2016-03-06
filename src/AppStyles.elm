@@ -37,6 +37,15 @@ selectStyles =
     , ("font-size", "16px")
     ]
 
+plusButton =
+  style
+    [ ("background-color", "rgba(96,96,96, 0.8)")
+    , ("color", "white")
+    , ("padding", "11px 16px")
+    , ("padding-top", "8px")
+    , ("font-size", "24px")
+    , ("border-radius", "50%")
+    ]
 
 applyDisplayFiler filter task =
   if filter == task.stage || filter == "all" then show else hide
