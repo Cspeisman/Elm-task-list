@@ -56,20 +56,6 @@ model =
     }
 
 
-changeTaskStage address task =
-    Html.Events.on "click"  Html.Events.targetValue (\v -> Signal.message address (ChangeStage v task.id))
-
-
-selectList : Address Action -> Task -> Html
-selectList address task =
-    div
-        [ changeTaskStage address task, AppStyles.selectStyles ]
-        [ div [ value "todo" ] [ text "todo" ]
-        , div [ value "inProgress" ] [ text "in progress" ]
-        , div [ value "completed" ] [ text "completed" ]
-        ]
-
-
 taskEntry : Address Action -> String -> Task -> Html
 taskEntry address filter task =
     div
@@ -123,7 +109,6 @@ type Action
     = AddTask
     | UpdateField String
     | Tick
-    | ChangeStage String Int
     | ApplyTaskFilter String
     | ShowInputField
     | HandleFeatureTask Task
@@ -159,16 +144,6 @@ update action model =
                 incrementedTasks = List.map incrementTimer model.tasks
             in
                 ( { model | tasks = incrementedTasks }, Effects.none )
-
-        ChangeStage str id ->
-            let
-                switchStage taskModel =
-                    if taskModel.id == id then
-                        { taskModel | stage = str }
-                    else
-                        taskModel
-            in
-                ( { model | tasks = List.map switchStage model.tasks }, Effects.none )
 
         ApplyTaskFilter str ->
             ( { model | filter = str }, Effects.none )
