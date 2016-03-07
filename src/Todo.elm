@@ -42,8 +42,6 @@ type alias Task =
     , timer : Timer.Model
     , id : Int
     , stage : String
-    , showControls : Bool
-    , showStageOptions : Bool
     }
 
 
@@ -54,34 +52,15 @@ model =
     , nextId = 0
     , filter = "all"
     , showTaskInput = True
-    , featureTask = {description = "Enter a new task", timer = Timer.init, id = 0, stage = "todo", showControls = False, showStageOptions = False}
+    , featureTask = {description = "Enter a new task", timer = Timer.init, id = 0, stage = "todo"}
     }
-
-
-
--- timerView : Address Action -> Timer.Model -> Html
-timerView address task =
-    let
-        { timer } = task
-        minute = toString (timer.seconds // 60)
-        second = timer.seconds % 60
-        time = minute ++ ": " ++ (if second < 10 then ("0" ++ toString second) else (toString second))
-    in
-       span
-            [ ]
-            [ span
-                [ Html.Events.onClick address (PauseResume task.id)
-                , if timer.isRunning then class "icon-pause" else class "icon-play"
-                ]
-                [ ]
-            , text time
-            ]
 
 
 changeTaskStage address task =
     Html.Events.on "click"  Html.Events.targetValue (\v -> Signal.message address (ChangeStage v task.id))
 
 
+selectList : Address Action -> Task -> Html
 selectList address task =
     div
         [ changeTaskStage address task, AppStyles.selectStyles ]
@@ -91,39 +70,21 @@ selectList address task =
         ]
 
 
-taskController address task =
-    div
-        [ Html.Events.onClick address (ToggleStageSelection task.id)
-        , class "controls"
-        , AppStyles.taskControls task.showControls
-        ]
-        [ text ""
-        , div
-          [ ]
-          [ (if task.showStageOptions then selectList address task else div [] []) ]
-        ]
-
-
--- taskEntry : Address Action -> Task -> Html
+taskEntry : Address Action -> String -> Task -> Html
 taskEntry address filter task =
     div
         [ AppStyles.applyDisplayFiler filter task
-        , Html.Events.onMouseOver address (ExposeControls task.id)
-        , Html.Events.onMouseOut address (HideControls task.id)
         , Html.Events.onClick address (HandleFeatureTask task)
         ]
         [ div
             [ class task.stage, AppStyles.taskRow ]
-            [ taskController address task
-            , text task.description
-            , timerView address task
+            [ text task.description
+            , Timer.view (Signal.forwardTo address (HandleTime task.id)) task.timer
             ]
-
         ]
 
 
-
--- taskList : Address Action -> List Task -> Html
+taskList : Address Action -> Model -> Html
 taskList address model =
     let
         someTasks = List.map (taskEntry address model.filter) model.tasks
@@ -131,8 +92,7 @@ taskList address model =
         div [] someTasks
 
 
-
--- onEnter : Address a -> a -> Attribute
+onEnter : Address a -> a -> Attribute
 onEnter address value =
     Html.Events.on
         "keydown"
@@ -141,7 +101,7 @@ onEnter address value =
 
 
 
--- is13 : Int -> Result String ()
+is13 : Int -> Result String ()
 is13 code =
     if code == 13 then
         Ok ()
@@ -149,48 +109,41 @@ is13 code =
         Err "not the right key code"
 
 
-type Action
-    = AddTask
-    | UpdateField String
-    | Tick
-    | Reset Int
-    | PauseResume Int
-    | ChangeStage String Int
-    | ApplyTaskFilter String
-    | ExposeControls Int
-    | HideControls Int
-    | ToggleStageSelection Int
-    | ShowInputField
-    | HandleFeatureTask Task
-
-
--- incrementWatch : Task -> Task
-incrementWatch task =
+incrementTimer : Task -> Task
+incrementTimer task =
     let
         { timer } = task
     in
         if timer.isRunning then
-            { task | timer = { seconds = timer.seconds + 1, isRunning = True } }
+            { task | timer = Timer.update Timer.Increment timer }
         else
             task
 
+type Action
+    = AddTask
+    | UpdateField String
+    | Tick
+    | ChangeStage String Int
+    | ApplyTaskFilter String
+    | ShowInputField
+    | HandleFeatureTask Task
+    | HandleTime Int Timer.Action
 
 
--- update : Action -> Model -> (Model, Effects a)
+update : Action -> Model -> (Model, Effects a)
 update action model =
     case action of
         AddTask ->
             ( { model
                 | tasks =
-                    model.tasks
-                        ++ [ { description = model.field
-                             , timer = Timer.init
-                             , id = model.nextId
-                             , stage = "todo"
-                             , showControls = False
-                             , showStageOptions = False
-                             }
-                           ]
+                    List.append
+                        [ { description = model.field
+                          , timer = Timer.init
+                          , id = model.nextId
+                          , stage = "todo"
+                          } ]
+                        model.tasks
+
                 , nextId = model.nextId + 1
                 , field = ""
                 , showTaskInput = False
@@ -203,35 +156,9 @@ update action model =
 
         Tick ->
             let
-                incrementedTasks = List.map incrementWatch model.tasks
+                incrementedTasks = List.map incrementTimer model.tasks
             in
                 ( { model | tasks = incrementedTasks }, Effects.none )
-
-        PauseResume id ->
-            let
-                updateTaskTimer taskModel =
-                    if taskModel.id == id then
-                        let
-                            { timer } = taskModel
-                        in
-                            { taskModel | timer = { timer | isRunning = not timer.isRunning } }
-                    else
-                        taskModel
-            in
-                ( { model | tasks = List.map updateTaskTimer model.tasks }, Effects.none )
-
-        Reset id ->
-            let
-                resetTaskTimer taskModel =
-                    if taskModel.id == id then
-                        let
-                            { timer } = taskModel
-                        in
-                            { taskModel | timer = { timer | seconds = 0 } }
-                    else
-                        taskModel
-            in
-                ( { model | tasks = List.map resetTaskTimer model.tasks }, Effects.none )
 
         ChangeStage str id ->
             let
@@ -246,39 +173,27 @@ update action model =
         ApplyTaskFilter str ->
             ( { model | filter = str }, Effects.none )
 
-        ExposeControls id ->
-            let toggleControls taskModel =
-              if taskModel.id == id then
-                { taskModel | showControls = True }
-              else
-                taskModel
-            in
-              ( { model | tasks = List.map toggleControls model.tasks }, Effects.none )
-
-        HideControls id ->
-            let toggleControls taskModel =
-                if taskModel.id == id then
-                    { taskModel | showControls = False }
-                else
-                    taskModel
-            in
-                ( { model | tasks = List.map toggleControls model.tasks }, Effects.none )
-
-        ToggleStageSelection id ->
-            let toggleStageSelection taskModel =
-              if taskModel.id == id then
-                { taskModel | showStageOptions = not taskModel.showStageOptions }
-              else
-                taskModel
-              in
-                ( { model | tasks = List.map toggleStageSelection model.tasks }, Effects.none )
-
         ShowInputField ->
             ( {model | showTaskInput = True}, Effects.none )
 
         HandleFeatureTask task ->
           ( {model | featureTask = task}, Effects.none)
 
+        HandleTime id act ->
+          let
+              updateTaskTimer taskModel =
+                  if taskModel.id == id then
+                      let
+                          { timer } = taskModel
+                      in
+                          { taskModel | timer = Timer.update act timer }
+                  else
+                      taskModel
+          in
+              ( { model | tasks = List.map updateTaskTimer model.tasks }, Effects.none )
+
+
+banner : Address Action -> Model -> Html
 banner address model =
   let
       { featureTask } = model
@@ -292,6 +207,8 @@ banner address model =
       , applyTaskFilter address
       ]
 
+
+applyTaskFilter : Address Action -> Html
 applyTaskFilter address =
     div
         [ style [ ("position", "relative"), ("background", "rgba(239, 239, 239, 0.5)")] ]
@@ -303,7 +220,7 @@ applyTaskFilter address =
         ]
 
 
-
+taskInputField : Address Action -> Model -> Html
 taskInputField address model =
   input
       [ id "new-todo"
@@ -318,7 +235,7 @@ taskInputField address model =
       [ ]
 
 
--- view : Address Action -> Model -> Html
+view : Address Action -> Model -> Html
 view address model =
     div
         [ ]
