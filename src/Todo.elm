@@ -105,6 +105,10 @@ incrementTimer task =
         else
             task
 
+
+foo featuredTask task =
+  featuredTask.id == task.id
+
 type Action
     = AddTask
     | UpdateField String
@@ -142,7 +146,9 @@ update action model =
         Tick ->
             let
                 incrementedTasks = List.map incrementTimer model.tasks
+                featureTask = (List.filter (foo model.featureTask) incrementedTasks)
             in
+                Debug.log (toString featureTask)
                 ( { model | tasks = incrementedTasks }, Effects.none )
 
         ApplyTaskFilter str ->
@@ -168,21 +174,6 @@ update action model =
               ( { model | tasks = List.map updateTaskTimer model.tasks }, Effects.none )
 
 
-banner : Address Action -> Model -> Html
-banner address model =
-  let
-      { featureTask } = model
-      { timer } = featureTask
-  in
-    div
-      [ AppStyles.banner ]
-      [ div [ style [("text-align", "center"), ("font-size", "18px"), ("padding", "24px 0")] ] [ text featureTask.description ]
-      , div [ style [("text-align", "center"), ("font-size", "56px"), ("font-weight", "300")] ] [ text (toString timer.seconds) ]
-      , div [ class "icon-pause", style [("color", "white"), ("text-align", "center"), ("font-size", "36px"), ("padding", "24px 0")]] [ ]
-      , applyTaskFilter address
-      ]
-
-
 applyTaskFilter : Address Action -> Html
 applyTaskFilter address =
     div
@@ -193,6 +184,21 @@ applyTaskFilter address =
         , button [ AppStyles.label, Html.Events.onClick address (ApplyTaskFilter "completed") ] [ text "COMPLETED" ]
         , span [style [("position", "absolute"), ("right", "0"), ("bottom", "-23px")]] [ button [ AppStyles.plusButton, Html.Events.onClick address ShowInputField ] [text "+"] ]
         ]
+
+
+banner : Address Action -> Model -> Html
+banner address model =
+    let
+        { featureTask } = model
+        { timer } = featureTask
+    in
+        div
+            [ AppStyles.banner ]
+            [ div [ style [("text-align", "center"), ("font-size", "18px"), ("padding", "24px 0")] ] [ text featureTask.description ]
+            , div [ style [("text-align", "center"), ("font-size", "56px"), ("font-weight", "300")] ] [ text (toString timer.seconds) ]
+            , div [ class "icon-pause", style [("color", "white"), ("text-align", "center"), ("font-size", "36px"), ("padding", "24px 0")]] [ ]
+            , applyTaskFilter address
+            ]
 
 
 taskInputField : Address Action -> Model -> Html
