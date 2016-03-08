@@ -161,7 +161,7 @@ update action model =
                       let
                           { timer } = taskModel
                       in
-                          { taskModel | timer = Timer.update act timer }
+                          { taskModel | timer = Timer.update act timer, stage = "inProgress"}
                   else
                       taskModel
           in
@@ -197,17 +197,17 @@ applyTaskFilter address =
 
 taskInputField : Address Action -> Model -> Html
 taskInputField address model =
-  input
-      [ id "new-todo"
-      , placeholder "What needs to be done?"
-      , autofocus True
-      , value model.field
-      , name "newTodo"
-      , Html.Events.on "input" Html.Events.targetValue (\v -> Signal.message address (UpdateField v))
-      , onEnter address AddTask
-      , AppStyles.taskRow
-      ]
-      [ ]
+    input
+        [ id "new-todo"
+        , placeholder "What needs to be done?"
+        , autofocus True
+        , value model.field
+        , name "newTodo"
+        , Html.Events.on "input" Html.Events.targetValue (\v -> Signal.message address (UpdateField v))
+        , onEnter address AddTask
+        , AppStyles.taskRow
+        ]
+        [ ]
 
 
 view : Address Action -> Model -> Html

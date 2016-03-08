@@ -19,6 +19,7 @@ taskRow =
     , ("font-size", "24px")
     , ("position", "relative")
     , ("color", "#3a3a3a")
+    , ("width", "100%")
     ]
 
 taskControls show =
