@@ -86,7 +86,6 @@ onEnter address value =
         (\_ -> Signal.message address value)
 
 
-
 is13 : Int -> Result String ()
 is13 code =
     if code == 13 then
@@ -104,6 +103,7 @@ incrementTimer featureTask task =
             { task | timer = Timer.update Timer.Increment timer }
         else
             task
+
 
 type Action
     = AddTask

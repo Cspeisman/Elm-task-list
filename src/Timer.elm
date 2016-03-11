@@ -33,18 +33,25 @@ update action model =
       {model | seconds = 0}
 
 
-view address model =
-  let
-    minute = toString (model.seconds // 60)
-    second = model.seconds % 60
-    time = minute ++ ": " ++ (if second < 10 then ("0" ++ toString second) else (toString second))
-  in
+timerView address model =
+    let
+        minute = toString (model.seconds // 60)
+        second = model.seconds % 60
+        time = minute ++ ": " ++ (if second < 10 then ("0" ++ toString second) else (toString second))
+    in
+        text time
+
+
+timerControls address model =
     span
-            [ ]
-            [ span
-                [ Html.Events.onClick address PauseResume
-                , if model.isRunning then class "icon-pause" else class "icon-play"
-                ]
-                [ ]
-            , text time
-            ]
+        [ Html.Events.onClick address PauseResume
+        , if model.isRunning then class "icon-pause" else class "icon-play"
+        ]
+        [ ]
+
+view address model =
+    span
+        [ ]
+        [ timerControls address model
+        , timerView address model
+        ]
