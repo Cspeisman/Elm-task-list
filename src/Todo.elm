@@ -95,8 +95,8 @@ is13 code =
         Err "not the right key code"
 
 
-incrementTimer : Task -> Task
-incrementTimer task =
+-- incrementTimer : Task -> Task
+incrementTimer featureTask task =
     let
         { timer } = task
     in
@@ -104,10 +104,6 @@ incrementTimer task =
             { task | timer = Timer.update Timer.Increment timer }
         else
             task
-
-
-foo featuredTask task =
-  featuredTask.id == task.id
 
 type Action
     = AddTask
@@ -145,10 +141,8 @@ update action model =
 
         Tick ->
             let
-                incrementedTasks = List.map incrementTimer model.tasks
-                featureTask = (List.filter (foo model.featureTask) incrementedTasks)
+                incrementedTasks = List.map (incrementTimer model.featureTask) model.tasks
             in
-                Debug.log (toString featureTask)
                 ( { model | tasks = incrementedTasks }, Effects.none )
 
         ApplyTaskFilter str ->
