@@ -11,6 +11,8 @@ import StartApp
 import Time
 import AppStyles
 import DynamicStyle
+import Maybe
+import List.Extra exposing (getAt)
 import Effects exposing (Effects)
 
 
@@ -33,7 +35,7 @@ type alias Model =
     , nextId : Int
     , filter : String
     , showTaskInput : Bool
-    , featureTask : Task
+    , featureTask : Maybe Task
     }
 
 
@@ -52,7 +54,7 @@ model =
     , nextId = 0
     , filter = "all"
     , showTaskInput = True
-    , featureTask = {description = "Enter a new task", timer = Timer.init, id = 0, stage = "todo"}
+    , featureTask = Maybe.Just {description = "Enter a new task", timer = Timer.init, id = 0, stage = "todo"}
     }
 
 
@@ -60,7 +62,7 @@ taskEntry : Address Action -> String -> Task -> Html
 taskEntry address filter task =
     div
         [ AppStyles.applyDisplayFiler filter task
-        , Html.Events.onClick address (HandleFeatureTask task)
+        , Html.Events.onClick address (HandleFeatureTask (Maybe.Just task))
         ]
         [ div
             [ class task.stage, AppStyles.taskRow ]
@@ -95,7 +97,7 @@ is13 code =
 
 
 -- incrementTimer : Task -> Task
-incrementTimer featureTask task =
+incrementTimer task =
     let
         { timer } = task
     in
@@ -105,13 +107,18 @@ incrementTimer featureTask task =
             task
 
 
+findFeatureTask featureTask task =
+    let justFeatureTask = fromJust featureTask
+    in justFeatureTask.id == task.id
+
+
 type Action
     = AddTask
     | UpdateField String
     | Tick
     | ApplyTaskFilter String
     | ShowInputField
-    | HandleFeatureTask Task
+    | HandleFeatureTask (Maybe Task)
     | HandleTime Int Timer.Action
 
 
@@ -141,9 +148,12 @@ update action model =
 
         Tick ->
             let
-                incrementedTasks = List.map (incrementTimer model.featureTask) model.tasks
+                incrementedTasks = List.map incrementTimer model.tasks
+                featureTasks = List.filter (findFeatureTask model.featureTask) model.tasks
+                hereWeGo = getAt featureTasks 0
             in
-                ( { model | tasks = incrementedTasks }, Effects.none )
+                Debug.log (toString hereWeGo)
+                ( { model | tasks = incrementedTasks }, Effects.map HandleFeatureTask hereWeGo )
 
         ApplyTaskFilter str ->
             ( { model | filter = str }, Effects.none )
@@ -180,10 +190,15 @@ applyTaskFilter address =
         ]
 
 
-banner : Address Action -> Model -> Html
+fromJust : Maybe a -> a
+fromJust x = case x of
+    Just y -> y
+    Nothing -> Debug.crash "error: fromJust Nothing"
+
+-- banner : Address Action -> Model -> Html
 banner address model =
     let
-        { featureTask } = model
+        featureTask = fromJust model.featureTask
         { timer } = featureTask
     in
         div
