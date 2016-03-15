@@ -198,7 +198,8 @@ fromJust x = case x of
     Just y -> y
     Nothing -> Debug.crash "error: fromJust Nothing"
 
--- banner : Address Action -> Model -> Html
+
+banner : Address Action -> Model -> Html
 banner address model =
     let
         featureTask = fromJust model.featureTask
@@ -207,7 +208,7 @@ banner address model =
         div
             [ AppStyles.banner ]
             [ div [ style [("text-align", "center"), ("font-size", "18px"), ("padding", "24px 0")] ] [ text featureTask.description ]
-            , div [ style [("text-align", "center"), ("font-size", "56px"), ("font-weight", "300")] ] [ text (toString timer.seconds) ]
+            , div [ style [("text-align", "center"), ("font-size", "56px"), ("font-weight", "300")] ] [ Timer.timerView timer ]
             , div [ class "icon-pause", style [("color", "white"), ("text-align", "center"), ("font-size", "36px"), ("padding", "24px 0")]] [ ]
             , applyTaskFilter address
             ]

@@ -33,7 +33,7 @@ update action model =
       {model | seconds = 0}
 
 
-timerView address model =
+timerView model =
     let
         minute = toString (model.seconds // 60)
         second = model.seconds % 60
@@ -53,5 +53,5 @@ view address model =
     span
         [ ]
         [ timerControls address model
-        , timerView address model
+        , timerView model
         ]
