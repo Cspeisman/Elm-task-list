@@ -96,7 +96,7 @@ is13 code =
         Err "not the right key code"
 
 
--- incrementTimer : Task -> Task
+incrementTimer : Task -> Task
 incrementTimer task =
     let
         { timer } = task
@@ -107,6 +107,7 @@ incrementTimer task =
             task
 
 
+findFeatureTask : Maybe Task -> Task -> Bool
 findFeatureTask featureTask task =
     let justFeatureTask = fromJust featureTask
     in justFeatureTask.id == task.id
@@ -149,12 +150,11 @@ update action model =
         Tick ->
             let
                 incrementedTasks = List.map incrementTimer model.tasks
-                featureTasks = List.filter (findFeatureTask model.featureTask) model.tasks
-                hereWeGo = getAt featureTasks 0
-
+                featureTasks = List.filter (findFeatureTask model.featureTask) incrementedTasks
+                task = getAt featureTasks 0
             in
-                if hereWeGo /= Maybe.Nothing then
-                  ( { model | tasks = incrementedTasks }, Effects.map HandleFeatureTask hereWeGo)
+                if task /= Maybe.Nothing then
+                  ( { model | tasks = incrementedTasks, featureTask = task }, Effects.none)
                 else
                   ( { model | tasks = incrementedTasks }, Effects.none)
 
