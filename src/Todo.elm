@@ -151,9 +151,12 @@ update action model =
                 incrementedTasks = List.map incrementTimer model.tasks
                 featureTasks = List.filter (findFeatureTask model.featureTask) model.tasks
                 hereWeGo = getAt featureTasks 0
+
             in
-                Debug.log (toString hereWeGo)
-                ( { model | tasks = incrementedTasks }, Effects.map HandleFeatureTask hereWeGo )
+                if hereWeGo /= Maybe.Nothing then
+                  ( { model | tasks = incrementedTasks }, Effects.map HandleFeatureTask hereWeGo)
+                else
+                  ( { model | tasks = incrementedTasks }, Effects.none)
 
         ApplyTaskFilter str ->
             ( { model | filter = str }, Effects.none )
