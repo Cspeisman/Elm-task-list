@@ -6,6 +6,7 @@ import Debug
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events
+import AppStyles
 import Effects exposing (Effects)
 
 type alias Model = {seconds : Int, isRunning : Bool}
@@ -43,15 +44,16 @@ timerView model =
 
 
 timerControls address model =
-    span
         [ Html.Events.onClick address PauseResume
         , if model.isRunning then class "icon-pause" else class "icon-play"
         ]
-        [ ]
+
 
 view address model =
     span
         [ ]
-        [ timerControls address model
+        [ span
+            [AppStyles.taskListControls]
+            [ span (timerControls address model) [ ] ]
         , timerView model
         ]

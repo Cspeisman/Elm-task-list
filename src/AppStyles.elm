@@ -60,6 +60,18 @@ banner =
     , ("color", "white")
     ]
 
+taskListControls =
+  style [ ("font-size", "16px")
+  , ("padding-right", "16px")
+  , ("color", "#41aac1")
+  ]
+
+bannerControls =
+  style
+    [ ("color", "white")
+    , ("text-align", "center")
+    , ("font-size", "36px")
+    , ("padding", "24px 0") ]
 
 applyDisplayFiler filter task =
   if filter == task.stage || filter == "all" then show else hide

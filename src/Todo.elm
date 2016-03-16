@@ -12,22 +12,12 @@ import Time
 import AppStyles
 import DynamicStyle
 import Maybe
+import Helpers
 import List.Extra exposing (getAt)
 import Effects exposing (Effects)
 
 
-main =
-    app.html
-
-
-app =
-    StartApp.start
-        { init = ( model, Effects.none )
-        , view = view
-        , update = update
-        , inputs = [ Signal.map (\_ -> Tick) (Time.every Time.second) ]
-        }
-
+-- Model
 
 type alias Model =
     { tasks : List Task
@@ -54,64 +44,11 @@ model =
     , nextId = 0
     , filter = "all"
     , showTaskInput = True
-    , featureTask = Maybe.Just {description = "Enter a new task", timer = Timer.init, id = 0, stage = "todo"}
+    , featureTask = Maybe.Just {description = "What needs to get done?", timer = Timer.init, id = 0, stage = "todo"}
     }
 
 
-taskEntry : Address Action -> String -> Task -> Html
-taskEntry address filter task =
-    div
-        [ AppStyles.applyDisplayFiler filter task
-        , Html.Events.onClick address (HandleFeatureTask (Maybe.Just task))
-        ]
-        [ div
-            [ class task.stage, AppStyles.taskRow ]
-            [ text task.description
-            , Timer.view (Signal.forwardTo address (HandleTime task.id)) task.timer
-            ]
-        ]
-
-
-taskList : Address Action -> Model -> Html
-taskList address model =
-    let
-        someTasks = List.map (taskEntry address model.filter) model.tasks
-    in
-        div [] someTasks
-
-
-onEnter : Address a -> a -> Attribute
-onEnter address value =
-    Html.Events.on
-        "keydown"
-        (Json.customDecoder Html.Events.keyCode is13)
-        (\_ -> Signal.message address value)
-
-
-is13 : Int -> Result String ()
-is13 code =
-    if code == 13 then
-        Ok ()
-    else
-        Err "not the right key code"
-
-
-incrementTimer : Task -> Task
-incrementTimer task =
-    let
-        { timer } = task
-    in
-        if timer.isRunning then
-            { task | timer = Timer.update Timer.Increment timer }
-        else
-            task
-
-
-findFeatureTask : Maybe Task -> Task -> Bool
-findFeatureTask featureTask task =
-    let justFeatureTask = fromJust featureTask
-    in justFeatureTask.id == task.id
-
+-- Update
 
 type Action
     = AddTask
@@ -181,6 +118,25 @@ update action model =
               ( { model | tasks = List.map updateTaskTimer model.tasks }, Effects.none )
 
 
+incrementTimer : Task -> Task
+incrementTimer task =
+    let
+        { timer } = task
+    in
+        if timer.isRunning then
+            { task | timer = Timer.update Timer.Increment timer }
+        else
+            task
+
+
+findFeatureTask : Maybe Task -> Task -> Bool
+findFeatureTask featureTask task =
+    let justFeatureTask = Helpers.fromJust featureTask
+    in justFeatureTask.id == task.id
+
+
+-- VIEW
+
 applyTaskFilter : Address Action -> Html
 applyTaskFilter address =
     div
@@ -193,23 +149,49 @@ applyTaskFilter address =
         ]
 
 
-fromJust : Maybe a -> a
-fromJust x = case x of
-    Just y -> y
-    Nothing -> Debug.crash "error: fromJust Nothing"
+taskEntry : Address Action -> String -> Task -> Html
+taskEntry address filter task =
+    div
+        [ AppStyles.applyDisplayFiler filter task
+        , Html.Events.onClick address (HandleFeatureTask (Maybe.Just task))
+        ]
+        [ div
+            [ class task.stage, AppStyles.taskRow ]
+            [ text task.description
+            , Timer.view (Signal.forwardTo address (HandleTime task.id)) task.timer
+            ]
+        ]
+
+
+taskList : Address Action -> Model -> Html
+taskList address model =
+    let
+        someTasks = List.map (taskEntry address model.filter) model.tasks
+    in
+        div [] someTasks
+
+
+onEnter : Address a -> a -> Attribute
+onEnter address value =
+    Html.Events.on
+        "keydown"
+        (Json.customDecoder Html.Events.keyCode Helpers.is13)
+        (\_ -> Signal.message address value)
 
 
 banner : Address Action -> Model -> Html
 banner address model =
     let
-        featureTask = fromJust model.featureTask
+        featureTask = Helpers.fromJust model.featureTask
         { timer } = featureTask
     in
         div
             [ AppStyles.banner ]
             [ div [ style [("text-align", "center"), ("font-size", "18px"), ("padding", "24px 0")] ] [ text featureTask.description ]
             , div [ style [("text-align", "center"), ("font-size", "56px"), ("font-weight", "300")] ] [ Timer.timerView timer ]
-            , div [ class "icon-pause", style [("color", "white"), ("text-align", "center"), ("font-size", "36px"), ("padding", "24px 0")]] [ ]
+            , div
+                [ AppStyles.bannerControls ]
+                [ span (Timer.timerControls (Signal.forwardTo address (HandleTime featureTask.id)) featureTask.timer) [] ]
             , applyTaskFilter address
             ]
 
@@ -218,7 +200,7 @@ taskInputField : Address Action -> Model -> Html
 taskInputField address model =
     input
         [ id "new-todo"
-        , placeholder "What needs to be done?"
+        , placeholder "What needs to get done?"
         , autofocus True
         , value model.field
         , name "newTodo"
@@ -237,3 +219,16 @@ view address model =
         , if model.showTaskInput then taskInputField address model else text ""
         , taskList address model
         ]
+
+
+app =
+    StartApp.start
+    { init = ( model, Effects.none )
+    , view = view
+    , update = update
+    , inputs = [ Signal.map (\_ -> Tick) (Time.every Time.second) ]
+    }
+
+
+main =
+    app.html
