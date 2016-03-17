@@ -51,8 +51,14 @@ plusButton =
     , ("border-radius", "50%")
     ]
 
-label =
-  style [ ("color", "#11777d"), ("font-size", "16px")]
+plusWrapper =
+  style [ ("position", "absolute"), ("right", "0"), ("bottom", "-23px"), ("z-index", "2") ]
+
+label active =
+  style
+    [ ("color", "#11777d")
+    , ("font-size", "16px")
+    , if active then ("font-weight", "700") else ("font-weight", "400")]
 
 banner =
   style

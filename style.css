@@ -34,12 +34,33 @@ input:focus {
 }
 
 .icon-play:before {
-    content: "\e900";
-}
-.icon-pause:before {
     content: "\e901";
 }
+.icon-pause:before {
+    content: "\e903";
+}
 
+.icon-checkmark:before {
+    content: "\e902";
+}
 .controls:before {
    content: "⋮";
+}
+
+.toggleTask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: white;
+    width: 100px;
+    padding: 24px;
+    transition: 0.3s ease-in-out;
+    transform: translateX(-100%);
+    text-align: center;
+    color: #58cfbb;
+    height: 100%;
+}
+
+.row:hover .toggleTask {
+    transform: translateX(0%)
 }

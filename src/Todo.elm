@@ -137,15 +137,15 @@ findFeatureTask featureTask task =
 
 -- VIEW
 
-applyTaskFilter : Address Action -> Html
-applyTaskFilter address =
+applyTaskFilter : Address Action -> Model -> Html
+applyTaskFilter address model =
     div
         [ style [ ("position", "relative"), ("background", "rgba(239, 239, 239, 0.5)")] ]
-        [ button [ AppStyles.label, Html.Events.onClick address (ApplyTaskFilter "all") ] [ text "ALL" ]
-        , button [ AppStyles.label, Html.Events.onClick address (ApplyTaskFilter "todo") ] [ text "TO-DO" ]
-        , button [ AppStyles.label, Html.Events.onClick address (ApplyTaskFilter "inProgress") ] [ text "IN PROGRESS" ]
-        , button [ AppStyles.label, Html.Events.onClick address (ApplyTaskFilter "completed") ] [ text "COMPLETED" ]
-        , span [style [("position", "absolute"), ("right", "0"), ("bottom", "-23px")]] [ button [ AppStyles.plusButton, Html.Events.onClick address ShowInputField ] [text "+"] ]
+        [ button [ AppStyles.label (model.filter == "all"), Html.Events.onClick address (ApplyTaskFilter "all") ] [ text "ALL" ]
+        , button [ AppStyles.label (model.filter == "todo"), Html.Events.onClick address (ApplyTaskFilter "todo") ] [ text "TO-DO" ]
+        , button [ AppStyles.label (model.filter == "inProgress"), Html.Events.onClick address (ApplyTaskFilter "inProgress") ] [ text "IN PROGRESS" ]
+        , button [ AppStyles.label (model.filter == "completed"), Html.Events.onClick address (ApplyTaskFilter "completed") ] [ text "COMPLETED" ]
+        , span [ AppStyles.plusWrapper ] [ button [ AppStyles.plusButton, Html.Events.onClick address ShowInputField ] [text "+"] ]
         ]
 
 
@@ -154,10 +154,12 @@ taskEntry address filter task =
     div
         [ AppStyles.applyDisplayFiler filter task
         , Html.Events.onClick address (HandleFeatureTask (Maybe.Just task))
+        , class "row"
         ]
         [ div
             [ class task.stage, AppStyles.taskRow ]
-            [ text task.description
+            [ div [ class "toggleTask icon-checkmark" ] [ ]
+            , text task.description
             , Timer.view (Signal.forwardTo address (HandleTime task.id)) task.timer
             ]
         ]
@@ -192,7 +194,7 @@ banner address model =
             , div
                 [ AppStyles.bannerControls ]
                 [ span (Timer.timerControls (Signal.forwardTo address (HandleTime featureTask.id)) featureTask.timer) [] ]
-            , applyTaskFilter address
+            , applyTaskFilter address model
             ]
 
 

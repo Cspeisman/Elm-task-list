@@ -7,6 +7,8 @@
 <font-face units-per-em="1024" ascent="960" descent="-64" />
 <missing-glyph horiz-adv-x="1024" />
 <glyph unicode="&#x20;" horiz-adv-x="512" d="" />
-<glyph unicode="&#xe900;" glyph-name="play3" d="M192 832l640-384-640-384z" />
-<glyph unicode="&#xe901;" glyph-name="pause2" d="M128 832h320v-768h-320zM576 832h320v-768h-320z" />
+<glyph unicode="&#xe900;" glyph-name="flickr" d="M0 416c0 123.712 100.288 224 224 224s224-100.288 224-224c0-123.712-100.288-224-224-224s-224 100.288-224 224zM576 416c0 123.712 100.288 224 224 224s224-100.288 224-224c0-123.712-100.288-224-224-224s-224 100.288-224 224z" />
+<glyph unicode="&#xe901;" glyph-name="play3" d="M192 832l640-384-640-384z" />
+<glyph unicode="&#xe902;" glyph-name="checkmark" d="M864 832l-480-480-224 224-160-160 384-384 640 640z" />
+<glyph unicode="&#xe903;" glyph-name="pause2" d="M128 832h320v-768h-320zM576 832h320v-768h-320z" />
 </font></defs></svg>
