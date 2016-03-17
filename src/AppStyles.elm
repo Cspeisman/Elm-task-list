@@ -12,8 +12,8 @@ hide =
 
 taskRow =
   style
-    [ ("padding", "24px")
-    , ("border-bottom", "1px solid #BABABA")
+    [ ("padding", "20px")
+    , ("border-bottom", "1px solid #eee")
     , ("display", "flex")
     , ("justify-content", "space-between")
     , ("font-size", "24px")
@@ -45,19 +45,22 @@ plusButton =
   style
     [ ("background-color", "#006e73")
     , ("color", "white")
-    , ("padding", "21px 26px")
-    , ("padding-top", "18px")
     , ("font-size", "24px")
     , ("border-radius", "50%")
+    , ("width", "65px")
+    , ("height", "65px")
+    , ("box-shadow", "0px 0px 3px rgba(0, 0, 0, 0.47)")
     ]
 
 plusWrapper =
-  style [ ("position", "absolute"), ("right", "0"), ("bottom", "-23px"), ("z-index", "2") ]
+  style [ ("position", "absolute"), ("right", "8px"), ("bottom", "-16px"), ("z-index", "2") ]
 
 label active =
   style
     [ ("color", "#11777d")
     , ("font-size", "16px")
+    , ("padding", "0 16px")
+    , ("letter-spacing", "0.5pt")
     , if active then ("font-weight", "700") else ("font-weight", "400")]
 
 banner =

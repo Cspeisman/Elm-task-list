@@ -140,11 +140,11 @@ findFeatureTask featureTask task =
 applyTaskFilter : Address Action -> Model -> Html
 applyTaskFilter address model =
     div
-        [ style [ ("position", "relative"), ("background", "rgba(239, 239, 239, 0.5)")] ]
-        [ button [ AppStyles.label (model.filter == "all"), Html.Events.onClick address (ApplyTaskFilter "all") ] [ text "ALL" ]
-        , button [ AppStyles.label (model.filter == "todo"), Html.Events.onClick address (ApplyTaskFilter "todo") ] [ text "TO-DO" ]
-        , button [ AppStyles.label (model.filter == "inProgress"), Html.Events.onClick address (ApplyTaskFilter "inProgress") ] [ text "IN PROGRESS" ]
-        , button [ AppStyles.label (model.filter == "completed"), Html.Events.onClick address (ApplyTaskFilter "completed") ] [ text "COMPLETED" ]
+        [ style [ ("position", "relative"), ("background", "rgba(239, 239, 239, 0.5)"), ("padding", "8px")] ]
+        [ span [ AppStyles.label (model.filter == "all"), Html.Events.onClick address (ApplyTaskFilter "all") ] [ text "ALL" ]
+        , span [ AppStyles.label (model.filter == "todo"), Html.Events.onClick address (ApplyTaskFilter "todo") ] [ text "TO-DO" ]
+        , span [ AppStyles.label (model.filter == "inProgress"), Html.Events.onClick address (ApplyTaskFilter "inProgress") ] [ text "IN PROGRESS" ]
+        , span [ AppStyles.label (model.filter == "completed"), Html.Events.onClick address (ApplyTaskFilter "completed") ] [ text "COMPLETED" ]
         , span [ AppStyles.plusWrapper ] [ button [ AppStyles.plusButton, Html.Events.onClick address ShowInputField ] [text "+"] ]
         ]
 

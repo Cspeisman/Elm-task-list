@@ -27,6 +27,7 @@ select, button, input {
     -webkit-appearance: none;
     border: none;
     background: transparent;
+    font-family: "Source Sans Pro", Arial, sans-serif;
 }
 
 input:focus {
