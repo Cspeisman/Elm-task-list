@@ -98,10 +98,14 @@ update action model =
 
         CompleteTask id ->
             let
-              compleTask task =
-                  if task.id == id then { task | stage = "completed"} else task
+                compleTask task =
+                    let
+                        { timer } = task
+                        stage = if task.stage == "completed" then "todo" else "completed"
+                    in
+                        if task.id == id then { task | stage = stage, timer = {timer | isRunning = False } } else task
             in
-              ( { model | tasks = List.map compleTask model.tasks }, Effects.none )
+                ( { model | tasks = List.map compleTask model.tasks }, Effects.none )
 
         ApplyTaskFilter str ->
             ( { model | filter = str }, Effects.none )
