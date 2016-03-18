@@ -12,3 +12,7 @@ run:
  `make build`
 
 Then open `index.html` in your browser!
+
+To run electron app version
+  run:
+    `make app`

@@ -2,6 +2,6 @@ build:
 	elm make src/Main.elm --output elm.js
 
 app:
-	npm start
+	make build && npm start
 
 .PHONY: build app

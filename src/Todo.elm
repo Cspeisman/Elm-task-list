@@ -54,6 +54,7 @@ type Action
     = AddTask
     | UpdateField String
     | Tick
+    | CompleteTask Int
     | ApplyTaskFilter String
     | ShowInputField
     | HandleFeatureTask (Maybe Task)
@@ -94,6 +95,13 @@ update action model =
                   ( { model | tasks = incrementedTasks, featureTask = task }, Effects.none)
                 else
                   ( { model | tasks = incrementedTasks }, Effects.none)
+
+        CompleteTask id ->
+            let
+              compleTask task =
+                  if task.id == id then { task | stage = "completed"} else task
+            in
+              ( { model | tasks = List.map compleTask model.tasks }, Effects.none )
 
         ApplyTaskFilter str ->
             ( { model | filter = str }, Effects.none )
@@ -158,8 +166,9 @@ taskEntry address filter task =
         ]
         [ div
             [ class task.stage, AppStyles.taskRow ]
-            [ div [ class "toggleTask icon-checkmark" ] [ ]
-            , text task.description
+            [ section
+                [ class "toggle-task" ]
+                [ input [type' "checkbox", name "toggle", Html.Events.onClick address (CompleteTask task.id) ] [], span [] [ text task.description ] ]
             , Timer.view (Signal.forwardTo address (HandleTime task.id)) task.timer
             ]
         ]
