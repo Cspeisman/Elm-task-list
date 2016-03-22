@@ -65,7 +65,7 @@ label active =
 
 banner =
   style
-    [ ("background", "linear-gradient(135deg, #72bffa, #48d6a8)")
+    [ ("background", "#585758")
     , ("color", "white")
     ]
 

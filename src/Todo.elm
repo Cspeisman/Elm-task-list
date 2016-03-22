@@ -148,19 +148,6 @@ findFeatureTask featureTask task =
 
 
 -- VIEW
-
-applyTaskFilter : Address Action -> Model -> Html
-applyTaskFilter address model =
-    div
-        [ style [ ("position", "relative"), ("background", "rgba(239, 239, 239, 0.5)"), ("padding", "8px")] ]
-        [ span [ AppStyles.label (model.filter == "all"), Html.Events.onClick address (ApplyTaskFilter "all") ] [ text "ALL" ]
-        , span [ AppStyles.label (model.filter == "todo"), Html.Events.onClick address (ApplyTaskFilter "todo") ] [ text "TO-DO" ]
-        , span [ AppStyles.label (model.filter == "inProgress"), Html.Events.onClick address (ApplyTaskFilter "inProgress") ] [ text "IN PROGRESS" ]
-        , span [ AppStyles.label (model.filter == "completed"), Html.Events.onClick address (ApplyTaskFilter "completed") ] [ text "COMPLETED" ]
-        , span [ AppStyles.plusWrapper ] [ button [ AppStyles.plusButton, Html.Events.onClick address ShowInputField ] [text "+"] ]
-        ]
-
-
 taskEntry : Address Action -> String -> Task -> Html
 taskEntry address filter task =
     div
@@ -196,18 +183,26 @@ onEnter address value =
 
 banner : Address Action -> Model -> Html
 banner address model =
-    let
-        featureTask = Helpers.fromJust model.featureTask
-        { timer } = featureTask
-    in
-        div
-            [ AppStyles.banner ]
-            [ div [ style [("text-align", "center"), ("font-size", "18px"), ("padding", "24px 0")] ] [ text featureTask.description ]
-            , div [ style [("text-align", "center"), ("font-size", "56px"), ("font-weight", "300")] ] [ Timer.timerView timer ]
-            , div
-                [ AppStyles.bannerControls ]
-                [ span (Timer.timerControls (Signal.forwardTo address (HandleTime featureTask.id)) featureTask.timer) [] ]
-            , applyTaskFilter address model
+      let
+          featureTask = Helpers.fromJust model.featureTask
+          { timer } = featureTask
+      in
+          div
+              [ AppStyles.banner ]
+              [ div [ style [("text-align", "center"), ("font-size", "18px"), ("padding", "24px 0")] ] [ text featureTask.description ]
+              , div [ style [("text-align", "center"), ("font-size", "56px"), ("font-weight", "300")] ] [ Timer.timerView timer ]
+              , div
+                  [ AppStyles.bannerControls ]
+                  [ span (Timer.timerControls (Signal.forwardTo address (HandleTime featureTask.id)) featureTask.timer) [] ]
+              ]
+
+
+mainContent : Address Action -> Model -> Html
+mainContent address model =
+        div [ style [("width", "80%")]]
+            [ banner address model
+            , taskInputField address model
+            , taskList address model
             ]
 
 
@@ -226,13 +221,20 @@ taskInputField address model =
         [ ]
 
 
+applyTaskFilter : Address Action -> Model -> Html
+applyTaskFilter address model =
+    div
+        [ style [("width", "20%")]]
+        [ div [ AppStyles.label (model.filter == "todo"), Html.Events.onClick address (ApplyTaskFilter "todo") ] [ text "TO-DO" ]
+        , div [ AppStyles.label (model.filter == "completed"), Html.Events.onClick address (ApplyTaskFilter "completed") ] [ text "COMPLETED" ]
+        ]
+
 view : Address Action -> Model -> Html
 view address model =
     div
-        [ ]
-        [ banner address model
-        , if model.showTaskInput then taskInputField address model else text ""
-        , taskList address model
+        [ style [("display", "flex")]]
+        [ applyTaskFilter address model
+        , mainContent address model
         ]
 
 
