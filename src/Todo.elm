@@ -12,6 +12,7 @@ import Time
 import AppStyles
 import DynamicStyle
 import Maybe
+import String
 import Helpers
 import List.Extra exposing (getAt)
 import Effects exposing (Effects)
@@ -71,7 +72,7 @@ update action model =
                         [ { description = model.field
                           , timer = Timer.init
                           , id = model.nextId
-                          , stage = "todo"
+                          , stage = "active"
                           } ]
                         model.tasks
 
@@ -101,7 +102,7 @@ update action model =
                 compleTask task =
                     let
                         { timer } = task
-                        stage = if task.stage == "completed" then "todo" else "completed"
+                        stage = if task.stage == "completed" then "active" else "completed"
                     in
                         if task.id == id then { task | stage = stage, timer = {timer | isRunning = False } } else task
             in
@@ -123,7 +124,7 @@ update action model =
                       let
                           { timer } = taskModel
                       in
-                          { taskModel | timer = Timer.update act timer, stage = "inProgress"}
+                          { taskModel | timer = Timer.update act timer}
                   else
                       taskModel
           in
@@ -206,34 +207,41 @@ mainContent address model =
             ]
 
 
+addButton : Address Action -> Html
+addButton address =
+    button [ Html.Events.onClick address AddTask ] [text "+ ADD"]
+
+
 taskInputField : Address Action -> Model -> Html
 taskInputField address model =
-    input
-        [ id "new-todo"
-        , placeholder "What needs to get done?"
-        , autofocus True
-        , value model.field
-        , name "newTodo"
-        , Html.Events.on "input" Html.Events.targetValue (\v -> Signal.message address (UpdateField v))
-        , onEnter address AddTask
-        , AppStyles.taskRow
-        ]
-        [ ]
+  div
+      [ AppStyles.taskRow ]
+      [ input
+            [ id "new-todo"
+            , placeholder "What needs to get done?"
+            , autofocus True
+            , value model.field
+            , name "newTodo"
+            , Html.Events.on "input" Html.Events.targetValue (\v -> Signal.message address (UpdateField v))
+            , onEnter address AddTask
+            ] [ ]
+      , if (String.length model.field >= 1) then addButton address else text ""
+      ]
 
 
-applyTaskFilter : Address Action -> Model -> Html
-applyTaskFilter address model =
+sideNav : Address Action -> Model -> Html
+sideNav address model =
     div
         [ style [("width", "20%")]]
-        [ div [ AppStyles.label (model.filter == "todo"), Html.Events.onClick address (ApplyTaskFilter "todo") ] [ text "TO-DO" ]
-        , div [ AppStyles.label (model.filter == "completed"), Html.Events.onClick address (ApplyTaskFilter "completed") ] [ text "COMPLETED" ]
+        [ div [ AppStyles.label (model.filter == "active"), Html.Events.onClick address (ApplyTaskFilter "active") ] [ text "Active" ]
+        , div [ AppStyles.label (model.filter == "completed"), Html.Events.onClick address (ApplyTaskFilter "completed") ] [ text "Completed" ]
         ]
 
 view : Address Action -> Model -> Html
 view address model =
     div
         [ style [("display", "flex")]]
-        [ applyTaskFilter address model
+        [ sideNav address model
         , mainContent address model
         ]
 

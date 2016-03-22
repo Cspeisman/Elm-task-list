@@ -45,15 +45,6 @@ input:focus {
     content: "\e902";
 }
 
-.toggle-task:hover {
-    transform: translateX(0%)
-}
-
-.toggle-task {
-  transition: 0.3s ease-in-out;
-  transform: translateX(-40px);
-}
-
 input[type='checkbox']{
  visibility: hidden;
 }
