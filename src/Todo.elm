@@ -224,6 +224,7 @@ taskInputField address model =
             , name "newTodo"
             , Html.Events.on "input" Html.Events.targetValue (\v -> Signal.message address (UpdateField v))
             , onEnter address AddTask
+            , style [("font-size", "24px"), ("width", "90%")]
             ] [ ]
       , if (String.length model.field >= 1) then addButton address else text ""
       ]
