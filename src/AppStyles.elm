@@ -82,5 +82,16 @@ bannerControls =
     , ("font-size", "36px")
     , ("padding", "24px 0") ]
 
+
+buttonStyle =
+  style
+    [ ("background", "#5299fd")
+    , ("padding", "8px 24px")
+    , ("color", "white")
+    , ("font-size", "18px")
+    , ("font-weight", "700")
+    , ("border-radius", "5px")
+    ]
+
 applyDisplayFiler filter task =
   if filter == task.stage || filter == "all" then show else hide

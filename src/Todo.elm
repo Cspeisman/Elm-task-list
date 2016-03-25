@@ -209,7 +209,7 @@ mainContent address model =
 
 addButton : Address Action -> Html
 addButton address =
-    button [ Html.Events.onClick address AddTask ] [text "+ ADD"]
+    button [ Html.Events.onClick address AddTask, AppStyles.buttonStyle ] [text "+ ADD"]
 
 
 taskInputField : Address Action -> Model -> Html
