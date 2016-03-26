@@ -43,9 +43,9 @@ model =
     { tasks = []
     , field = ""
     , nextId = 0
-    , filter = "all"
+    , filter = "active"
     , showTaskInput = True
-    , featureTask = Maybe.Just {description = "What needs to get done?", timer = Timer.init, id = 0, stage = "todo"}
+    , featureTask = Maybe.Just {description = "What needs to get done?", timer = Timer.init, id = -1, stage = "todo"}
     }
 
 
@@ -152,8 +152,7 @@ findFeatureTask featureTask task =
 taskEntry : Address Action -> String -> Task -> Html
 taskEntry address filter task =
     div
-        [ AppStyles.applyDisplayFiler filter task
-        , Html.Events.onClick address (HandleFeatureTask (Maybe.Just task))
+        [ Html.Events.onClick address (HandleFeatureTask (Maybe.Just task))
         , class "row"
         ]
         [ div
@@ -166,10 +165,17 @@ taskEntry address filter task =
         ]
 
 
+filterTask : String -> Task -> Bool
+filterTask filter task =
+    Debug.log filter
+    filter == task.stage
+
+
 taskList : Address Action -> Model -> Html
 taskList address model =
     let
-        someTasks = List.map (taskEntry address model.filter) model.tasks
+        filteredTasks = List.filter (filterTask model.filter) model.tasks
+        someTasks = List.map (taskEntry address model.filter) filteredTasks
     in
         div [] someTasks
 
@@ -234,8 +240,8 @@ sideNav : Address Action -> Model -> Html
 sideNav address model =
     div
         [ style [("width", "20%")]]
-        [ div [ AppStyles.label (model.filter == "active"), Html.Events.onClick address (ApplyTaskFilter "active") ] [ text "Active" ]
-        , div [ AppStyles.label (model.filter == "completed"), Html.Events.onClick address (ApplyTaskFilter "completed") ] [ text "Completed" ]
+        [ div [ AppStyles.label (model.filter == "active"), Html.Events.onClick address (ApplyTaskFilter "active"), class "icon-list" ] [ text "Active" ]
+        , div [ AppStyles.label (model.filter == "completed"), Html.Events.onClick address (ApplyTaskFilter "completed"), class "icon-list" ] [ text "Completed" ]
         ]
 
 view : Address Action -> Model -> Html

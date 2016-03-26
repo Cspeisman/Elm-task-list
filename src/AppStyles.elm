@@ -57,9 +57,9 @@ plusWrapper =
 
 label active =
   style
-    [ ("color", "#11777d")
+    [ ("color", "#9c9c9c")
     , ("font-size", "16px")
-    , ("padding", "0 16px")
+    , ("padding", "16px")
     , ("letter-spacing", "0.5pt")
     , if active then ("font-weight", "700") else ("font-weight", "400")]
 
@@ -92,6 +92,3 @@ buttonStyle =
     , ("font-weight", "700")
     , ("border-radius", "5px")
     ]
-
-applyDisplayFiler filter task =
-  if filter == task.stage || filter == "all" then show else hide

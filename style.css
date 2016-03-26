@@ -45,6 +45,11 @@ input:focus {
     content: "\e902";
 }
 
+.icon-list:before {
+    content: "\e904";
+    padding-right: 16px;
+}
+
 input[type='checkbox']{
  visibility: hidden;
 }
