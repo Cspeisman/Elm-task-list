@@ -236,13 +236,18 @@ taskInputField address model =
       ]
 
 
+
 sideNav : Address Action -> Model -> Html
 sideNav address model =
-    div
-        [ style [("width", "20%")]]
-        [ div [ AppStyles.label (model.filter == "active"), Html.Events.onClick address (ApplyTaskFilter "active"), class "icon-list" ] [ text "Active" ]
-        , div [ AppStyles.label (model.filter == "completed"), Html.Events.onClick address (ApplyTaskFilter "completed"), class "icon-list" ] [ text "Completed" ]
-        ]
+    let
+      activeCount = List.length (List.filter (filterTask "active") model.tasks) |> toString
+      completedCount = List.length (List.filter (filterTask "completed") model.tasks) |> toString
+    in
+      div
+          [ style [("width", "20%")]]
+          [ div [ AppStyles.label (model.filter == "active"), Html.Events.onClick address (ApplyTaskFilter "active"), class "icon-list" ] [ text ("Active" ++ " (" ++ activeCount ++ ")") ]
+          , div [ AppStyles.label (model.filter == "completed"), Html.Events.onClick address (ApplyTaskFilter "completed"), class "icon-list" ] [ text ("Completed" ++ " (" ++ completedCount ++ ")") ]
+          ]
 
 view : Address Action -> Model -> Html
 view address model =
