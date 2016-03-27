@@ -10,6 +10,9 @@ show =
 hide =
   style [("display", "none")]
 
+displayTask showTask =
+  if showTask then show else hide
+
 taskRow =
   style
     [ ("padding", "20px")

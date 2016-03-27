@@ -145,10 +145,10 @@ findFeatureTask featureTask task =
 
 
 -- VIEW
-taskEntry : Address Action -> Task -> Html
-taskEntry address task =
+taskEntry : Address Action -> Model -> Task -> Html
+taskEntry address model task =
     div
-        [ Html.Events.onClick address (HandleFeatureTask (Maybe.Just task))
+        [ AppStyles.displayTask (model.showCompleted == task.completed), Html.Events.onClick address (HandleFeatureTask (Maybe.Just task))
         , class "row"
         ]
         [ div
@@ -172,12 +172,8 @@ taskEntry address task =
 
 taskList : Address Action -> Model -> Html
 taskList address model =
-    let
-        filteredTasks = List.filter (\task -> model.showCompleted == task.completed) model.tasks
-        someTasks = List.map (taskEntry address) filteredTasks
-    in
-        Debug.log (toString filteredTasks)
-        div [] someTasks
+    let someTasks = List.map (taskEntry address model) model.tasks
+    in div [] someTasks
 
 
 onEnter : Address a -> a -> Attribute
