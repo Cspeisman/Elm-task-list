@@ -68,14 +68,11 @@ update action model =
         AddTask ->
             ( { model
                 | tasks =
-                    List.append
-                        [ { description = model.field
+                        { description = model.field
                           , timer = Timer.init
                           , id = model.nextId
                           , completed = False
-                          } ]
-                        model.tasks
-
+                          } :: model.tasks
                 , nextId = model.nextId + 1
                 , field = ""
                 , showTaskInput = False
