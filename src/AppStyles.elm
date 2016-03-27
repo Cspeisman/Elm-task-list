@@ -91,4 +91,5 @@ buttonStyle =
     , ("font-size", "18px")
     , ("font-weight", "700")
     , ("border-radius", "5px")
+    , ("width", "15%")
     ]

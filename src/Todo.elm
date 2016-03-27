@@ -167,7 +167,6 @@ taskEntry address filter task =
 
 filterTask : String -> Task -> Bool
 filterTask filter task =
-    Debug.log filter
     filter == task.stage
 
 
@@ -244,7 +243,7 @@ sideNav address model =
       completedCount = List.length (List.filter (filterTask "completed") model.tasks) |> toString
     in
       div
-          [ style [("width", "20%")]]
+          [ style [("width", "25%")]]
           [ div [ AppStyles.label (model.filter == "active"), Html.Events.onClick address (ApplyTaskFilter "active"), class "icon-list" ] [ text ("Active" ++ " (" ++ activeCount ++ ")") ]
           , div [ AppStyles.label (model.filter == "completed"), Html.Events.onClick address (ApplyTaskFilter "completed"), class "icon-list" ] [ text ("Completed" ++ " (" ++ completedCount ++ ")") ]
           ]
