@@ -24,7 +24,7 @@ type alias Model =
     { tasks : List Task
     , field : String
     , nextId : Int
-    , filter : String
+    , showCompleted : Bool
     , showTaskInput : Bool
     , featureTask : Maybe Task
     }
@@ -34,7 +34,7 @@ type alias Task =
     { description : String
     , timer : Timer.Model
     , id : Int
-    , stage : String
+    , completed : Bool
     }
 
 
@@ -43,9 +43,9 @@ model =
     { tasks = []
     , field = ""
     , nextId = 0
-    , filter = "active"
+    , showCompleted = False
     , showTaskInput = True
-    , featureTask = Maybe.Just {description = "What needs to get done?", timer = Timer.init, id = -1, stage = "todo"}
+    , featureTask = Maybe.Just {description = "What needs to get done?", timer = Timer.init, id = -1, completed = False}
     }
 
 
@@ -56,7 +56,7 @@ type Action
     | UpdateField String
     | Tick
     | CompleteTask Int
-    | ApplyTaskFilter String
+    | ApplyTaskFilter
     | ShowInputField
     | HandleFeatureTask (Maybe Task)
     | HandleTime Int Timer.Action
@@ -72,7 +72,7 @@ update action model =
                         [ { description = model.field
                           , timer = Timer.init
                           , id = model.nextId
-                          , stage = "active"
+                          , completed = False
                           } ]
                         model.tasks
 
@@ -102,14 +102,13 @@ update action model =
                 compleTask task =
                     let
                         { timer } = task
-                        stage = if task.stage == "completed" then "active" else "completed"
                     in
-                        if task.id == id then { task | stage = stage, timer = {timer | isRunning = False } } else task
+                        if task.id == id then { task | completed = not task.completed, timer = {timer | isRunning = False } } else task
             in
                 ( { model | tasks = List.map compleTask model.tasks }, Effects.none )
 
-        ApplyTaskFilter str ->
-            ( { model | filter = str }, Effects.none )
+        ApplyTaskFilter ->
+            ( { model | showCompleted = not model.showCompleted }, Effects.none )
 
         ShowInputField ->
             ( {model | showTaskInput = True}, Effects.none )
@@ -149,32 +148,35 @@ findFeatureTask featureTask task =
 
 
 -- VIEW
-taskEntry : Address Action -> String -> Task -> Html
-taskEntry address filter task =
+taskEntry : Address Action -> Task -> Html
+taskEntry address task =
     div
         [ Html.Events.onClick address (HandleFeatureTask (Maybe.Just task))
         , class "row"
         ]
         [ div
-            [ class task.stage, AppStyles.taskRow ]
+            [ AppStyles.taskRow ]
             [ section
                 [ class "toggle-task" ]
-                [ input [type' "checkbox", name "toggle", Html.Events.onClick address (CompleteTask task.id) ] [], span [] [ text task.description ] ]
+                [ input
+                    [ type' "checkbox"
+                    , name "toggle"
+                    , Html.Events.onClick address (CompleteTask task.id)
+                    , checked task.completed
+                    ] [ ]
+                , span [ ] [ text task.description ]
+                ]
             , Timer.view (Signal.forwardTo address (HandleTime task.id)) task.timer
             ]
         ]
 
 
-filterTask : String -> Task -> Bool
-filterTask filter task =
-    filter == task.stage
-
 
 taskList : Address Action -> Model -> Html
 taskList address model =
     let
-        filteredTasks = List.filter (filterTask model.filter) model.tasks
-        someTasks = List.map (taskEntry address model.filter) filteredTasks
+        filteredTasks = List.filter (\task -> model.showCompleted == task.completed) model.tasks
+        someTasks = List.map (taskEntry address) filteredTasks
     in
         div [] someTasks
 
@@ -239,14 +241,15 @@ taskInputField address model =
 sideNav : Address Action -> Model -> Html
 sideNav address model =
     let
-      activeCount = List.length (List.filter (filterTask "active") model.tasks) |> toString
-      completedCount = List.length (List.filter (filterTask "completed") model.tasks) |> toString
+      activeCount = List.length (List.filter (\task -> task.completed == False) model.tasks) |> toString
+      completedCount = List.length (List.filter (\task -> task.completed == True) model.tasks) |> toString
     in
       div
           [ style [("width", "25%")]]
-          [ div [ AppStyles.label (model.filter == "active"), Html.Events.onClick address (ApplyTaskFilter "active"), class "icon-list" ] [ text ("Active" ++ " (" ++ activeCount ++ ")") ]
-          , div [ AppStyles.label (model.filter == "completed"), Html.Events.onClick address (ApplyTaskFilter "completed"), class "icon-list" ] [ text ("Completed" ++ " (" ++ completedCount ++ ")") ]
+          [ div [ AppStyles.label (not model.showCompleted), Html.Events.onClick address ApplyTaskFilter, class "icon-list" ] [ text ("Active" ++ " (" ++ activeCount ++ ")") ]
+          , div [ AppStyles.label model.showCompleted, Html.Events.onClick address ApplyTaskFilter, class "icon-list" ] [ text ("Completed" ++ " (" ++ completedCount ++ ")") ]
           ]
+
 
 view : Address Action -> Model -> Html
 view address model =
