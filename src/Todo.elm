@@ -158,10 +158,11 @@ taskEntry address task =
                 [ input
                     [ type' "checkbox"
                     , name "toggle"
+                    , id (toString task.id)
                     , Html.Events.onClick address (CompleteTask task.id)
                     , checked task.completed
                     ] [ ]
-                , span [ ] [ text task.description ]
+                , label [ for (toString task.id) ] [ text task.description ]
                 ]
             , Timer.view (Signal.forwardTo address (HandleTime task.id)) task.timer
             ]
@@ -175,6 +176,7 @@ taskList address model =
         filteredTasks = List.filter (\task -> model.showCompleted == task.completed) model.tasks
         someTasks = List.map (taskEntry address) filteredTasks
     in
+        Debug.log (toString filteredTasks)
         div [] someTasks
 
 
