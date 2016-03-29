@@ -79,3 +79,7 @@ input[type='checkbox']:after{
 input[type='checkbox']:checked:after{
   opacity: 1;
 }
+
+.hide {
+  display: none;
+}

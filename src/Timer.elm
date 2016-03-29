@@ -51,7 +51,7 @@ timerControls address model =
 
 view address model =
     span
-        [ ]
+        [ AppStyles.timerStyles model.isRunning ]
         [ span
             [AppStyles.taskListControls]
             [ span (timerControls address model) [ ] ]

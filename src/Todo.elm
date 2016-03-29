@@ -4,6 +4,7 @@ import Timer
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events
+import Html.Lazy
 import Json.Decode as Json
 import Signal exposing (Signal, Address)
 import Debug
@@ -117,10 +118,8 @@ update action model =
           let
               updateTaskTimer taskModel =
                   if taskModel.id == id then
-                      let
-                          { timer } = taskModel
-                      in
-                          { taskModel | timer = Timer.update act timer}
+                      let { timer } = taskModel
+                      in { taskModel | timer = Timer.update act timer}
                   else
                       taskModel
           in
@@ -191,7 +190,7 @@ banner address model =
           { timer } = featureTask
       in
           div
-              [ AppStyles.banner ]
+              [ AppStyles.banner (featureTask.id >= 0 && timer.isRunning) ]
               [ div [ style [("text-align", "center"), ("font-size", "18px"), ("padding", "24px 0")] ] [ text featureTask.description ]
               , div [ style [("text-align", "center"), ("font-size", "56px"), ("font-weight", "300")] ] [ Timer.timerView timer ]
               , div
@@ -250,8 +249,8 @@ view : Address Action -> Model -> Html
 view address model =
     div
         [ style [("display", "flex")]]
-        [ sideNav address model
-        , mainContent address model
+        [ Html.Lazy.lazy2 sideNav address model
+        , Html.Lazy.lazy2 mainContent address model
         ]
 
 

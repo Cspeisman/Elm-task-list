@@ -66,18 +66,23 @@ label active =
     , ("letter-spacing", "0.5pt")
     , if active then ("font-weight", "700") else ("font-weight", "400")]
 
-banner =
+banner isRunning =
   style
-    [ ("background", "#585758")
+    [ if isRunning then ("background", "#5299fd") else ("background", "#585758")
     , ("color", "white")
     ]
 
 taskListControls =
   style [ ("font-size", "16px")
-  , ("padding-right", "16px")
-  , ("color", "#41aac1")
-  ]
+        , ("padding-right", "16px")
+        ]
 
+timerStyles isRunning =
+  style [ ("padding", "8px 24px")
+        , ("border-radius", "5px")
+        , if isRunning then ("background", "#5299fd") else ("background", "#d9d9d9")
+        , if isRunning then ("color", "white") else ("color", "#626262")
+        ]
 bannerControls =
   style
     [ ("color", "white")
