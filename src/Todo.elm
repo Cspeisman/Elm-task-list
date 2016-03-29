@@ -225,7 +225,7 @@ taskInputField address model =
             , name "newTodo"
             , Html.Events.on "input" Html.Events.targetValue (\v -> Signal.message address (UpdateField v))
             , onEnter address AddTask
-            , style [("font-size", "24px"), ("width", "90%")]
+            , style [("font-size", "24px"), ("width", "75%")]
             ] [ ]
       , if (String.length model.field >= 1) then addButton address else text ""
       ]
@@ -239,7 +239,7 @@ sideNav address model =
       completedCount = List.length (List.filter (\task -> task.completed == True) model.tasks) |> toString
     in
       div
-          [ style [("width", "25%")]]
+          [ style [ ("width", "35%"), ("overflow-x", "scroll"), ("white-space", "nowrap") ] ]
           [ div [ AppStyles.label (not model.showCompleted), Html.Events.onClick address ApplyTaskFilter, class "icon-list" ] [ text ("Active" ++ " (" ++ activeCount ++ ")") ]
           , div [ AppStyles.label model.showCompleted, Html.Events.onClick address ApplyTaskFilter, class "icon-list" ] [ text ("Completed" ++ " (" ++ completedCount ++ ")") ]
           ]
