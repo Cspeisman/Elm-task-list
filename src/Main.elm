@@ -29,7 +29,6 @@ type alias Model =
     , showCompleted : Bool
     , showTaskInput : Bool
     , featureTask : Maybe Task
-    , someString : String
     }
 
 
@@ -49,7 +48,6 @@ model =
     , showCompleted = False
     , showTaskInput = True
     , featureTask = Maybe.Just {description = "What needs to get done?", timer = Timer.init, id = -1, completed = False}
-    , someString = "INITIAL STATE"
     }
 
 
@@ -126,7 +124,7 @@ update action model =
                   else
                       taskModel
           in
-              ( { model | tasks = List.map updateTaskTimer model.tasks }, Effects.none )
+              ( { model | tasks = List.map updateTaskTimer model.tasks }, Effects.task <| Task.succeed (HandleFeatureTask (Maybe.Just {description = "WOOO FINALLY THIS WORKS", timer = Timer.init, id = -1, completed = False})) )
 
 
 incrementTimer : Task -> Task
