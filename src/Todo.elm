@@ -15,6 +15,7 @@ import DynamicStyle
 import Maybe
 import String
 import Helpers
+import Task
 import List.Extra exposing (getAt)
 import Effects exposing (Effects)
 
@@ -28,6 +29,7 @@ type alias Model =
     , showCompleted : Bool
     , showTaskInput : Bool
     , featureTask : Maybe Task
+    , someString : String
     }
 
 
@@ -47,6 +49,7 @@ model =
     , showCompleted = False
     , showTaskInput = True
     , featureTask = Maybe.Just {description = "What needs to get done?", timer = Timer.init, id = -1, completed = False}
+    , someString = "INITIAL STATE"
     }
 
 
@@ -61,9 +64,10 @@ type Action
     | ShowInputField
     | HandleFeatureTask (Maybe Task)
     | HandleTime Int Timer.Action
+    | NoOp
+    | ChangeState String
 
-
-update : Action -> Model -> (Model, Effects a)
+update : Action -> Model -> (Model, Effects Action)
 update action model =
     case action of
         AddTask ->
@@ -125,6 +129,12 @@ update action model =
           in
               ( { model | tasks = List.map updateTaskTimer model.tasks }, Effects.none )
 
+        NoOp ->
+            Debug.log "HELLO THERE"
+            (model, Effects.task <| Task.succeed (ChangeState "STATE CHANGED"))
+
+        ChangeState arg ->
+            ({model | someString = arg}, Effects.none)
 
 incrementTimer : Task -> Task
 incrementTimer task =
@@ -249,7 +259,8 @@ view : Address Action -> Model -> Html
 view address model =
     div
         [ style [("display", "flex")]]
-        [ Html.Lazy.lazy2 sideNav address model
+        [ span [ Html.Events.onClick address NoOp ] [ text model.someString ]
+        , Html.Lazy.lazy2 sideNav address model
         , Html.Lazy.lazy2 mainContent address model
         ]
 
@@ -265,3 +276,6 @@ app =
 
 main =
     app.html
+
+tasks =
+    app.tasks
