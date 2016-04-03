@@ -28,7 +28,7 @@ type alias Model =
     , nextId : Int
     , showCompleted : Bool
     , showTaskInput : Bool
-    , featureTask : Maybe Task
+    , featureTask : Task
     }
 
 
@@ -47,8 +47,11 @@ model =
     , nextId = 0
     , showCompleted = False
     , showTaskInput = True
-    , featureTask = Maybe.Just {description = "What needs to get done?", timer = Timer.init, id = -1, completed = False}
+    , featureTask = defaultFeatureTask
     }
+
+defaultFeatureTask =
+    {description = "What needs to get done?", timer = Timer.init, id = -1, completed = False}
 
 
 -- Update
@@ -60,7 +63,7 @@ type Action
     | CompleteTask Int
     | ApplyTaskFilter
     | ShowInputField
-    | HandleFeatureTask (Maybe Task)
+    | HandleFeatureTask Task
     | HandleTime Int Timer.Action
 
 
@@ -89,12 +92,9 @@ update action model =
             let
                 incrementedTasks = List.map incrementTimer model.tasks
                 featureTasks = List.filter (findFeatureTask model.featureTask) incrementedTasks
-                task = getAt featureTasks 0
+                task = Maybe.withDefault defaultFeatureTask (getAt featureTasks 0)
             in
-                if task /= Maybe.Nothing then
-                  ( { model | tasks = incrementedTasks, featureTask = task }, Effects.none)
-                else
-                  ( { model | tasks = incrementedTasks }, Effects.none)
+                ( { model | tasks = incrementedTasks, featureTask = task }, Effects.none)
 
         CompleteTask id ->
             let
@@ -124,11 +124,9 @@ update action model =
                   else taskModel
               updatedTasksStuff = List.map updateTaskTimer model.tasks
               featureTasks = List.filter (findFeatureTask model.featureTask) updatedTasksStuff
-              task = getAt featureTasks 0
+              task = Maybe.withDefault defaultFeatureTask (getAt featureTasks 0)
           in
-              Debug.log (toString updatedTasksStuff)
               ( { model | tasks = updatedTasksStuff }, Effects.task <| Task.succeed ( HandleFeatureTask task ) )
-              -- ( { model | tasks = updatedTasksStuff }, Effects.task <| Task.succeed ( HandleFeatureTask task ) )
 
 
 incrementTimer : Task -> Task
@@ -142,9 +140,9 @@ incrementTimer task =
             task
 
 
-findFeatureTask : Maybe Task -> Task -> Bool
+findFeatureTask : Task -> Task -> Bool
 findFeatureTask featureTask task =
-    let justFeatureTask = Helpers.fromJust featureTask
+    let justFeatureTask = featureTask
     in justFeatureTask.id == task.id
 
 
@@ -152,7 +150,7 @@ findFeatureTask featureTask task =
 taskEntry : Address Action -> Model -> Task -> Html
 taskEntry address model task =
     div
-        [ AppStyles.displayTask (model.showCompleted == task.completed), Html.Events.onClick address (HandleFeatureTask (Maybe.Just task))
+        [ AppStyles.displayTask (model.showCompleted == task.completed), Html.Events.onClick address (HandleFeatureTask task)
         , class "row"
         ]
         [ div
@@ -191,7 +189,7 @@ onEnter address value =
 banner : Address Action -> Model -> Html
 banner address model =
       let
-          featureTask = Helpers.fromJust model.featureTask
+          featureTask = model.featureTask
           { timer } = featureTask
       in
           div
