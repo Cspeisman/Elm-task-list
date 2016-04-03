@@ -121,10 +121,14 @@ update action model =
                   if taskModel.id == id then
                       let { timer } = taskModel
                       in { taskModel | timer = Timer.update act timer}
-                  else
-                      taskModel
+                  else taskModel
+              updatedTasksStuff = List.map updateTaskTimer model.tasks
+              featureTasks = List.filter (findFeatureTask model.featureTask) updatedTasksStuff
+              task = getAt featureTasks 0
           in
-              ( { model | tasks = List.map updateTaskTimer model.tasks }, Effects.task <| Task.succeed (HandleFeatureTask (Maybe.Just {description = "WOOO FINALLY THIS WORKS", timer = Timer.init, id = -1, completed = False})) )
+              Debug.log (toString updatedTasksStuff)
+              ( { model | tasks = updatedTasksStuff }, Effects.task <| Task.succeed ( HandleFeatureTask task ) )
+              -- ( { model | tasks = updatedTasksStuff }, Effects.task <| Task.succeed ( HandleFeatureTask task ) )
 
 
 incrementTimer : Task -> Task
@@ -162,7 +166,7 @@ taskEntry address model task =
                     , Html.Events.onClick address (CompleteTask task.id)
                     , checked task.completed
                     ] [ ]
-                , label [ for (toString task.id) ] [ text task.description ]
+                , span [ ] [ text task.description ]
                 ]
             , Timer.view (Signal.forwardTo address (HandleTime task.id)) task.timer
             ]
@@ -240,7 +244,7 @@ sideNav address model =
       completedCount = List.length (List.filter (\task -> task.completed == True) model.tasks) |> toString
     in
       div
-          [ style [ ("width", "35%"), ("overflow-x", "scroll"), ("white-space", "nowrap") ] ]
+          [ style [ ("min-width", "35%") ] ]
           [ div [ AppStyles.label (not model.showCompleted), Html.Events.onClick address ApplyTaskFilter, class "icon-list" ] [ text ("Active" ++ " (" ++ activeCount ++ ")") ]
           , div [ AppStyles.label model.showCompleted, Html.Events.onClick address ApplyTaskFilter, class "icon-list" ] [ text ("Completed" ++ " (" ++ completedCount ++ ")") ]
           ]
