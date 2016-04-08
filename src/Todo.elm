@@ -149,8 +149,8 @@ findFeatureTask featureTask task =
 taskEntry : Address Action -> Model -> Task -> Html
 taskEntry address model task =
     div
-        [ AppStyles.displayTask (model.showCompleted == task.completed), Html.Events.onClick address (HandleFeatureTask task)
-        , class "row"
+        [ AppStyles.displayTask (model.showCompleted == task.completed)
+        , Html.Events.onClick address (HandleFeatureTask task)
         ]
         [ div
             [ AppStyles.taskRow ]
@@ -163,7 +163,7 @@ taskEntry address model task =
                     , Html.Events.onClick address (CompleteTask task.id)
                     , checked task.completed
                     ] [ ]
-                , span [ ] [ text task.description ]
+                , span [ class "task-text" ] [ text task.description ]
                 ]
             , Timer.view (Signal.forwardTo address (HandleTime task.id)) task.timer
             ]
