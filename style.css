@@ -57,11 +57,12 @@ input[type='checkbox']{
 input[type='checkbox']:before{
   content: ' ';
   visibility: visible;
-  border: 1px solid #ccc;
+  border: 2px solid #ccc;
   width: 16px;
   height: 16px;
   display: inline-block;
   position: relative;
+  border-radius: 3px;
 }
 
 input[type='checkbox']:after{
@@ -73,7 +74,7 @@ input[type='checkbox']:after{
   position: relative;
   right: 18px;
   transition: all 0.1s ease-in-out;
-  color: #4bc8b9;
+  color: #5299fd;
 }
 
 input[type='checkbox']:checked:after{
@@ -82,6 +83,10 @@ input[type='checkbox']:checked:after{
 
 .hide {
   display: none;
+}
+
+.toggle-task {
+  width: 80%;
 }
 
 .task-text {

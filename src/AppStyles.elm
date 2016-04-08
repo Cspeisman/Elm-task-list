@@ -78,12 +78,14 @@ taskListControls =
         ]
 
 timerStyles isRunning =
-  style [ ("padding", "8px 24px")
+  style [ ("padding", "8px 0")
+        , ("text-align", "center")
         , ("border-radius", "5px")
         , ("width", "20%")
         , if isRunning then ("background", "#5299fd") else ("background", "#d9d9d9")
         , if isRunning then ("color", "white") else ("color", "#626262")
         ]
+
 bannerControls =
   style
     [ ("color", "white")
