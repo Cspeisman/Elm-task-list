@@ -93,5 +93,5 @@ input[type='checkbox']:checked:after{
   white-space: nowrap;
   width: 80%;
   display: inline-block;
-  overflow-x: scroll;
+  overflow-x: auto;
 }

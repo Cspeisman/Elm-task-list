@@ -1,6 +1,8 @@
 module Todo (..) where
 
-import Timer
+import Timer.View
+import Timer.Types
+import Timer.State
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events
@@ -34,7 +36,7 @@ type alias Model =
 
 type alias Task =
     { description : String
-    , timer : Timer.Model
+    , timer : Timer.Types.Model
     , id : Int
     , completed : Bool
     }
@@ -52,7 +54,7 @@ model =
 
 
 defaultFeatureTask =
-    { description = "What needs to get done?", timer = Timer.init, id = -1, completed = False }
+    { description = "What needs to get done?", timer = Timer.State.init, id = -1, completed = False }
 
 
 
@@ -67,7 +69,7 @@ type Action
     | ApplyTaskFilter
     | ShowInputField
     | HandleFeatureTask Task
-    | HandleTime Int Timer.Action
+    | HandleTime Int Timer.Types.Action
 
 
 update : Action -> Model -> ( Model, Effects Action )
@@ -77,7 +79,7 @@ update action model =
             ( { model
                 | tasks =
                     { description = model.field
-                    , timer = Timer.init
+                    , timer = Timer.State.init
                     , id = model.nextId
                     , completed = False
                     }
@@ -131,7 +133,7 @@ update action model =
                         let
                             { timer } = taskModel
                         in
-                            { taskModel | timer = Timer.update act timer }
+                            { taskModel | timer = Timer.State.update act timer }
                     else
                         taskModel
 
@@ -150,7 +152,7 @@ incrementTimer task =
         { timer } = task
     in
         if timer.isRunning then
-            { task | timer = Timer.update Timer.Increment timer }
+            { task | timer = Timer.State.update Timer.Types.Increment timer }
         else
             task
 
@@ -187,7 +189,7 @@ taskEntry address model task =
                     []
                 , span [ class "task-text" ] [ text task.description ]
                 ]
-            , Timer.view (Signal.forwardTo address (HandleTime task.id)) task.timer
+            , Timer.View.root (Signal.forwardTo address (HandleTime task.id)) task.timer
             ]
         ]
 
@@ -218,10 +220,10 @@ banner address model =
         div
             [ AppStyles.banner (featureTask.id >= 0 && timer.isRunning) ]
             [ div [ style [ ( "text-align", "center" ), ( "font-size", "18px" ), ( "padding", "24px 0" ) ] ] [ text featureTask.description ]
-            , div [ style [ ( "text-align", "center" ), ( "font-size", "56px" ), ( "font-weight", "300" ) ] ] [ Timer.timerView timer ]
+            , div [ style [ ( "text-align", "center" ), ( "font-size", "56px" ), ( "font-weight", "300" ) ] ] [ Timer.View.timerView timer ]
             , div
                 [ AppStyles.bannerControls ]
-                [ span (Timer.timerControls (Signal.forwardTo address (HandleTime featureTask.id)) featureTask.timer) [] ]
+                [ span (Timer.View.timerControls (Signal.forwardTo address (HandleTime featureTask.id)) featureTask.timer) [] ]
             ]
 
 
