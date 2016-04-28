@@ -2,17 +2,19 @@ module TaskApp (..) where
 
 import Effects exposing (Effects)
 import Task
+import Todo.Types
 import StartApp
-import Todo exposing (model, view, update, Action)
+import Todo.State
+import Todo.View
 import Time
 
 
 app =
     StartApp.start
-        { init = ( model, Effects.none )
-        , view = view
-        , update = update
-        , inputs = [ Signal.map (\_ -> Todo.Tick) (Time.every Time.second) ]
+        { init = ( Todo.State.model, Effects.none )
+        , view = Todo.View.view
+        , update = Todo.State.update
+        , inputs = [ Signal.map (\_ -> Todo.Types.Tick) (Time.every Time.second) ]
         }
 
 

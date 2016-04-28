@@ -1,172 +1,17 @@
-module Todo (..) where
+module Todo.View (..) where
 
+import Todo.State exposing (..)
+import Todo.Types exposing (..)
 import Timer.View
-import Timer.Types
-import Timer.State
+import Signal exposing (Signal, Address)
+import Json.Decode as Json
+import AppStyles
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events
 import Html.Lazy
-import Json.Decode as Json
-import Signal exposing (Signal, Address)
-import Debug
-import StartApp
-import Time
-import AppStyles
-import Maybe
-import String
 import Helpers
-import Task
-import List.Extra exposing (getAt)
-import Effects exposing (Effects)
-
-
--- Model
-
-
-type alias Model =
-    { tasks : List Task
-    , field : String
-    , nextId : Int
-    , showCompleted : Bool
-    , showTaskInput : Bool
-    , featureTask : Task
-    }
-
-
-type alias Task =
-    { description : String
-    , timer : Timer.Types.Model
-    , id : Int
-    , completed : Bool
-    }
-
-
-model : Model
-model =
-    { tasks = []
-    , field = ""
-    , nextId = 0
-    , showCompleted = False
-    , showTaskInput = True
-    , featureTask = defaultFeatureTask
-    }
-
-
-defaultFeatureTask =
-    { description = "What needs to get done?", timer = Timer.State.init, id = -1, completed = False }
-
-
-
--- Update
-
-
-type Action
-    = AddTask
-    | UpdateField String
-    | Tick
-    | CompleteTask Int
-    | ApplyTaskFilter
-    | ShowInputField
-    | HandleFeatureTask Task
-    | HandleTime Int Timer.Types.Action
-
-
-update : Action -> Model -> ( Model, Effects Action )
-update action model =
-    case action of
-        AddTask ->
-            ( { model
-                | tasks =
-                    { description = model.field
-                    , timer = Timer.State.init
-                    , id = model.nextId
-                    , completed = False
-                    }
-                        :: model.tasks
-                , nextId = model.nextId + 1
-                , field = ""
-                , showTaskInput = False
-              }
-            , Effects.none
-            )
-
-        UpdateField str ->
-            ( { model | field = str }, Effects.none )
-
-        Tick ->
-            let
-                incrementedTasks = List.map incrementTimer model.tasks
-
-                featureTasks = List.filter (findFeatureTask model.featureTask) incrementedTasks
-
-                task = Maybe.withDefault defaultFeatureTask (getAt featureTasks 0)
-            in
-                ( { model | tasks = incrementedTasks, featureTask = task }, Effects.none )
-
-        CompleteTask id ->
-            let
-                compleTask task =
-                    let
-                        { timer } = task
-                    in
-                        if task.id == id then
-                            { task | completed = not task.completed, timer = { timer | isRunning = False } }
-                        else
-                            task
-            in
-                ( { model | tasks = List.map compleTask model.tasks }, Effects.none )
-
-        ApplyTaskFilter ->
-            ( { model | showCompleted = not model.showCompleted }, Effects.none )
-
-        ShowInputField ->
-            ( { model | showTaskInput = True }, Effects.none )
-
-        HandleFeatureTask task ->
-            ( { model | featureTask = task }, Effects.none )
-
-        HandleTime id act ->
-            let
-                updateTaskTimer taskModel =
-                    if taskModel.id == id then
-                        let
-                            { timer } = taskModel
-                        in
-                            { taskModel | timer = Timer.State.update act timer }
-                    else
-                        taskModel
-
-                updatedTasksStuff = List.map updateTaskTimer model.tasks
-
-                featureTasks = List.filter (findFeatureTask model.featureTask) updatedTasksStuff
-
-                task = Maybe.withDefault defaultFeatureTask (getAt featureTasks 0)
-            in
-                ( { model | tasks = updatedTasksStuff }, Effects.task <| Task.succeed (HandleFeatureTask task) )
-
-
-incrementTimer : Task -> Task
-incrementTimer task =
-    let
-        { timer } = task
-    in
-        if timer.isRunning then
-            { task | timer = Timer.State.update Timer.Types.Increment timer }
-        else
-            task
-
-
-findFeatureTask : Task -> Task -> Bool
-findFeatureTask featureTask task =
-    let
-        justFeatureTask = featureTask
-    in
-        justFeatureTask.id == task.id
-
-
-
--- VIEW
+import String
 
 
 taskEntry : Address Action -> Model -> Task -> Html
