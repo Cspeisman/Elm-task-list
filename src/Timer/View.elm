@@ -17,7 +17,7 @@ timerView model =
         second = model.seconds % 60
 
         time =
-            minute ++ ": " ++ (if second < 10 then ("0" ++ toString second) else (toString second))
+            minute ++ ":" ++ (if second < 10 then ("0" ++ toString second) else (toString second))
     in
         text time
 

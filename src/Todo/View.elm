@@ -64,8 +64,8 @@ banner address model =
     in
         div
             [ AppStyles.banner (featureTask.id >= 0 && timer.isRunning) ]
-            [ div [ style [ ( "text-align", "center" ), ( "font-size", "18px" ), ( "padding", "24px 0" ) ] ] [ text featureTask.description ]
-            , div [ style [ ( "text-align", "center" ), ( "font-size", "56px" ), ( "font-weight", "300" ) ] ] [ Timer.View.timerView timer ]
+            [ div [ style [ ( "text-align", "center" ), ( "font-size", "18px" ), ( "font-weight", "bold" ), ( "padding", "24px 0" ), ("background-color", "#5299FD") ] ] [ text featureTask.description ]
+            , div [ style [ ( "text-align", "center" ), ( "font-size", "56px" ), ( "font-weight", "200" ), ("background-color", "#5299FD") ] ] [ Timer.View.timerView timer ]
             , div
                 [ AppStyles.bannerControls ]
                 [ span (Timer.View.timerControls (Signal.forwardTo address (HandleTime featureTask.id)) featureTask.timer) [] ]
@@ -117,7 +117,7 @@ sideNav address model =
         completedCount = List.length (List.filter (\task -> task.completed == True) model.tasks) |> toString
     in
         div
-            [ style [ ( "min-width", "35%" ), ( "white-space", "nowrap" ) ] ]
+            [ style [ ( "min-width", "35%" ), ( "white-space", "nowrap" ), ( "border-right", "1px solid #eee" ) ] ]
             [ div [ AppStyles.label (not model.showCompleted), Html.Events.onClick address ApplyTaskFilter, class "icon-list" ] [ text ("Active" ++ " (" ++ activeCount ++ ")") ]
             , div [ AppStyles.label model.showCompleted, Html.Events.onClick address ApplyTaskFilter, class "icon-list" ] [ text ("Completed" ++ " (" ++ completedCount ++ ")") ]
             ]
@@ -126,7 +126,7 @@ sideNav address model =
 view : Address Action -> Model -> Html
 view address model =
     div
-        [ style [ ( "display", "flex" ) ] ]
+        [ style [ ( "display", "flex" ), ("min-height", "100vh") ] ]
         [ Html.Lazy.lazy2 sideNav address model
         , Html.Lazy.lazy2 mainContent address model
         ]
