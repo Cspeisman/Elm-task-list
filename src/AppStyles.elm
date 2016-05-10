@@ -24,7 +24,7 @@ taskRow =
         , ( "border-bottom", "1px solid #eee" )
         , ( "display", "flex" )
         , ( "justify-content", "space-between" )
-        , ( "font-size", "24px" )
+        , ( "font-size", "16px" )
         , ( "position", "relative" )
         , ( "color", "#3a3a3a" )
         , ( "width", "100%" )
@@ -76,11 +76,10 @@ label active =
         [ ( "color", "#9c9c9c" )
         , ( "font-size", "16px" )
         , ( "padding", "16px" )
-        , ( "letter-spacing", "0.5pt" )
         , if active then
-            ( "font-weight", "700" )
+            ( "color", "#5299FD" )
           else
-            ( "font-weight", "400" )
+            ( "color", "#9c9c9c" )
         ]
 
 
@@ -124,6 +123,7 @@ bannerControls =
         , ( "text-align", "center" )
         , ( "font-size", "36px" )
         , ( "padding", "24px 0" )
+        , ("background-color", "#5299FD")
         ]
 
 
