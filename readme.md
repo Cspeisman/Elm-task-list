@@ -7,8 +7,13 @@ Simply add tasks to a list, and track the time you've spent on each task.
 ### Build instructions
 This app should be super simple to get running locally.
 
+
 #### First
 [make sure you have elm installed](http://elm-lang.org/install)
+
+Warning!! this app currently only works with elm 0.16 and will break with 0.17
+
+_I am currently in the process of upgrading it to 0.17_
 
 #### Build
 run:
@@ -27,7 +32,7 @@ To run electron app version
 
 ### File structure
 - All of the elm code lives in the `src` directory
-- `Main.elm` is the entry point to application
+- `Main.elm` is the entry point to the application
 - Each "module" has its own directory with 3 files in it
   - Types (includes all Type definitions and Type Unions)
   - View (responsible for display logic)
@@ -37,4 +42,4 @@ To run electron app version
 
 There is also an `AppStyles.elm`file which include methods for inlining styles. However, styles are completely all over the place and there is a plan to [migrate it all to elm-css](https://github.com/Cspeisman/Elm-task-list/issues/2)
 
-`Helpers.elms` include a few useful helper methods used amongst modules but don't really have their own home to live in
+`Helpers.elm` include a few useful helper methods used amongst modules but don't really have their own home to live in
