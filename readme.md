@@ -9,11 +9,11 @@ This app should be super simple to get running locally.
 
 
 #### First
-[make sure you have elm installed](http://elm-lang.org/install)
+make sure you have elm 0.16 installed
 
-Warning!! this app currently only works with elm 0.16 and will break with 0.17
+I think the easiest way is by running `npm install -g elm@0.16`
 
-_I am currently in the process of upgrading it to 0.17_
+_I am currently in the process of upgrading to 0.17 but for now stick to 0.16_
 
 #### Build
 run:
