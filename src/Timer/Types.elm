@@ -7,4 +7,3 @@ type alias Model =
 type Action
     = Increment
     | PauseResume
-    | Reset

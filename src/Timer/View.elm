@@ -22,28 +22,6 @@ timerView model =
         text time
 
 
-timerControls : Signal.Address Action -> Model -> List Attribute
-timerControls address model =
-    [ Html.Events.onClick address PauseResume
-    , if model.isRunning then
-        class "icon-pause"
-      else
-        class "icon-play"
-    ]
-
-
--- root : Signal.Address Action -> Model -> Html
--- root address model =
---     span
---         [ AppStyles.timerStyles model.isRunning ]
---         [ span
---             [ AppStyles.taskListControls ]
---             [ span (timerControls address model) [] ]
---         , timerView model
---         ]
-
-
-
 root : Signal.Address Action -> Model -> Html
 root address model =
     span
