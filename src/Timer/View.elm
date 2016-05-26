@@ -32,12 +32,25 @@ timerControls address model =
     ]
 
 
+-- root : Signal.Address Action -> Model -> Html
+-- root address model =
+--     span
+--         [ AppStyles.timerStyles model.isRunning ]
+--         [ span
+--             [ AppStyles.taskListControls ]
+--             [ span (timerControls address model) [] ]
+--         , timerView model
+--         ]
+
+
+
 root : Signal.Address Action -> Model -> Html
 root address model =
     span
         [ AppStyles.timerStyles model.isRunning ]
         [ span
             [ AppStyles.taskListControls ]
-            [ span (timerControls address model) [] ]
-        , timerView model
+            [ button [ Html.Events.onClick address PauseResume ]  [if model.isRunning then text "pause" else text "play"]
+            ,timerView model
+            ]
         ]
